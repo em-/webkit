@@ -35,13 +35,9 @@
 #include <X11/Xlib.h>
 #endif
 
-#if PLATFORM(GTK)
-#include <gdk/gdk.h>
-#ifndef GTK_API_VERSION_2
-#ifdef GDK_WINDOWING_WAYLAND
+#if USE(EGL) && PLATFORM(WAYLAND) && PLATFORM(GTK) && !defined(GTK_API_VERSION_2)
 #include <gdk/gdkwayland.h>
-#endif
-#endif
+#include "WaylandDisplay.h"
 #endif
 
 using WTF::ThreadSpecific;
@@ -73,6 +69,13 @@ GLContext* GLContext::sharingContext()
     DEFINE_STATIC_LOCAL(OwnPtr<GLContext>, sharing, (createOffscreenContext()));
     return sharing.get();
 }
+
+#if USE(EGL) && PLATFORM(WAYLAND) && PLATFORM(GTK) && !defined(GTK_API_VERSION_2)
+struct wl_display* GLContext::sharedWaylandDisplay()
+{
+    return WaylandDisplay::instance()->nativeDisplay();
+}
+#endif
 
 #if PLATFORM(X11)
 // We do not want to call glXMakeContextCurrent using different Display pointers,
@@ -146,18 +149,8 @@ void GLContext::cleanupActiveContextsAtExit()
 
 PassOwnPtr<GLContext> GLContext::createContextForWindow(GLNativeWindowType windowHandle, GLContext* sharingContext)
 {
-#if PLATFORM(GTK) && defined(GDK_WINDOWING_WAYLAND) && USE(EGL)
-    GdkDisplay* display = gdk_display_manager_get_default_display(gdk_display_manager_get());
-
-    if (GDK_IS_WAYLAND_DISPLAY(display)) {
-        if (OwnPtr<GLContext> eglContext = GLContextEGL::createContext(windowHandle, sharingContext))
-            return eglContext.release();
-        return nullptr;
-    }
-#endif
-
 #if !PLATFORM(NIX)
-#if USE(GLX)
+#if USE(GLX) && !PLATFORM(WAYLAND)
     if (OwnPtr<GLContext> glxContext = GLContextGLX::createContext(windowHandle, sharingContext))
         return glxContext.release();
 #endif
