@@ -35,9 +35,17 @@
 #include <X11/Xlib.h>
 #endif
 
-#if USE(EGL) && PLATFORM(WAYLAND) && PLATFORM(GTK) && !defined(GTK_API_VERSION_2)
+#if PLATFORM(GTK)
+#include <gdk/gdk.h>
+#ifdef GDK_WINDOWING_WAYLAND
 #include <gdk/gdkwayland.h>
+#endif
+#ifdef GDK_WINDOWING_X11
+#include <gdk/gdkx.h>
+#endif
+#if USE(EGL) && PLATFORM(WAYLAND) && !defined(GTK_API_VERSION_2)
 #include "WaylandDisplay.h"
+#endif
 #endif
 
 using WTF::ThreadSpecific;
@@ -171,6 +179,12 @@ GLContext::GLContext()
 
 PassOwnPtr<GLContext> GLContext::createOffscreenContext(GLContext* sharingContext)
 {
+#if PLATFORM(GTK) && PLATFORM(WAYLAND) && PLATFORM(X11) && USE(GLX) && !defined(GTK_API_VERSION_2)
+    // We need to create context via GLX when running on X11 platform and have built for both Wayland and X11
+    GdkDisplay* display = gdk_display_manager_get_default_display(gdk_display_manager_get());
+    if (GDK_IS_X11_DISPLAY(display))
+        return GLContextGLX::createContext(0, sharingContext);
+#endif
     return createContextForWindow(0, sharingContext);
 }
 
