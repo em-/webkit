@@ -134,6 +134,7 @@ bool GraphicsContext3D::reshapeFBOs(const IntSize& size)
     ::glTexImage2D(GL_TEXTURE_2D, 0, m_internalColorFormat, width, height, 0, colorFormat, GL_UNSIGNED_BYTE, 0);
     ::glBindTexture(GL_TEXTURE_2D, 0);
 
+    Extensions3DOpenGLES* extensions = static_cast<Extensions3DOpenGLES*>(getExtensions());
     if (extensions->isImagination() && m_attrs.antialias) {
         GLint maxSampleCount;
         ::glGetIntegerv(Extensions3D::MAX_SAMPLES_IMG, &maxSampleCount); 
