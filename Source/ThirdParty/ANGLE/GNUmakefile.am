@@ -24,6 +24,20 @@ libANGLE_la_SOURCES = \
 	Source/ThirdParty/ANGLE/include/KHR/khrplatform.h \
 	Source/ThirdParty/ANGLE/src/common/angleutils.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/BaseTypes.h \
+	Source/ThirdParty/ANGLE/src/common/blocklayout.cpp \
+	Source/ThirdParty/ANGLE/src/common/blocklayout.h \
+	Source/ThirdParty/ANGLE/src/common/debug.cpp \
+	Source/ThirdParty/ANGLE/src/common/debug.h \
+	Source/ThirdParty/ANGLE/src/common/event_tracer.cpp \
+	Source/ThirdParty/ANGLE/src/common/event_tracer.h \
+	Source/ThirdParty/ANGLE/src/common/mathutil.cpp \
+	Source/ThirdParty/ANGLE/src/common/mathutil.h \
+	Source/ThirdParty/ANGLE/src/common/RefCountObject.cpp \
+	Source/ThirdParty/ANGLE/src/common/RefCountObject.h \
+	Source/ThirdParty/ANGLE/src/common/shadervars.cpp \
+	Source/ThirdParty/ANGLE/src/common/shadervars.h \
+	Source/ThirdParty/ANGLE/src/common/utilities.cpp \
+	Source/ThirdParty/ANGLE/src/common/utilities.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/BuiltInFunctionEmulator.cpp \
 	Source/ThirdParty/ANGLE/src/compiler/translator/BuiltInFunctionEmulator.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/CodeGen.cpp \
@@ -50,6 +64,8 @@ libANGLE_la_SOURCES = \
 	Source/ThirdParty/ANGLE/src/compiler/translator/ExtensionBehavior.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/ForLoopUnroll.cpp \
 	Source/ThirdParty/ANGLE/src/compiler/translator/ForLoopUnroll.h \
+	Source/ThirdParty/ANGLE/src/compiler/translator/FlagStd140Structs.cpp \
+	Source/ThirdParty/ANGLE/src/compiler/translator/FlagStd140Structs.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/glslang.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/glslang_lex.cpp \
 	Source/ThirdParty/ANGLE/src/compiler/translator/glslang_tab.cpp \
@@ -71,8 +87,8 @@ libANGLE_la_SOURCES = \
 	Source/ThirdParty/ANGLE/src/compiler/translator/intermOut.cpp \
 	Source/ThirdParty/ANGLE/src/compiler/translator/IntermTraverse.cpp \
 	Source/ThirdParty/ANGLE/src/compiler/translator/localintermediate.h \
-	Source/ThirdParty/ANGLE/src/compiler/translator/MapLongVariableNames.cpp \
-	Source/ThirdParty/ANGLE/src/compiler/translator/MapLongVariableNames.h \
+	Source/ThirdParty/ANGLE/src/compiler/translator/LoopInfo.cpp \
+	Source/ThirdParty/ANGLE/src/compiler/translator/LoopInfo.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/MMap.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/NodeSearch.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/osinclude.h \
@@ -121,6 +137,8 @@ libANGLE_la_SOURCES = \
 	Source/ThirdParty/ANGLE/src/compiler/translator/UnfoldShortCircuit.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/Uniform.cpp \
 	Source/ThirdParty/ANGLE/src/compiler/translator/Uniform.h \
+	Source/ThirdParty/ANGLE/src/compiler/translator/ValidateOutputs.cpp \
+	Source/ThirdParty/ANGLE/src/compiler/translator/ValidateOutputs.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/util.cpp \
 	Source/ThirdParty/ANGLE/src/compiler/translator/util.h \
 	Source/ThirdParty/ANGLE/src/compiler/translator/ValidateLimitations.cpp \
