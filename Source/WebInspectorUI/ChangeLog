@@ -1,0 +1,2060 @@
+2015-02-16  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: Tweak the styles on the Console
+        https://bugs.webkit.org/show_bug.cgi?id=140580
+
+            - Use non-monospace (default sans-serif) font for console messages, but keep using monospace font
+              for objects, functions, and anything else that presumably code.
+            - Display all expandable objects on a separate row.
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Views/ConsoleCommand.js:
+        (WebInspector.ConsoleCommand.prototype.decorateMessageElement):
+        (WebInspector.ConsoleCommand.prototype.toMessageElement):
+        * UserInterface/Views/ConsoleGroup.js:
+        (WebInspector.ConsoleGroup.prototype.addMessage):
+        * UserInterface/Views/ConsoleMessageImpl.js:
+        (WebInspector.ConsoleMessageImpl.prototype._format):
+        (WebInspector.ConsoleMessageImpl.prototype._isExpandable):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameter):
+        (WebInspector.ConsoleMessageImpl.prototype.append):
+        (WebInspector.ConsoleMessageImpl.prototype._formatWithSubstitutionString):
+        (WebInspector.ConsoleMessageImpl.prototype.decorateMessageElement):
+        (WebInspector.ConsoleMessageImpl.prototype.toMessageElement):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsString): Deleted.
+        * UserInterface/Views/LogContentView.css:
+        (.console-messages):
+        (.console-formatted-object):
+        (.expandable.source-code):
+        (.console-message):
+        (.console-item.selected::after):
+        (.console-messages:focus .console-item.selected::after):
+        (.console-user-command-result.console-log-level::before):
+        (.console-item::before):
+        (.console-message .bubble):
+        (.console-error-level):
+        (.console-error-level .section .header .title):
+        (.console-error-level::before):
+        (.console-warning-level):
+        (.console-warning-level .console-message-text):
+        (.console-warning-level::before):
+        (.console-user-command::before):
+        (.console-group-messages .section):
+        (.console-group-messages .section .header::before):
+        (.console-group-messages .section .header .title):
+        (.console-formatted-object, .console-formatted-node, .console-formatted-error, .console-formatted-map, .console-formatted-set, .console-formatted-weakmap):
+        (.outline-disclosure li):
+        (.outline-disclosure li.parent::before):
+        (.console-item): Deleted.
+        (.console-item.selected): Deleted.
+        (.console-messages:focus .console-item.selected): Deleted.
+        (.console-item.selected .console-message::after): Deleted.
+        (.console-messages:focus .console-item.selected .data-grid tr.selected): Deleted.
+        (.console-messages:focus .console-item.selected .console-message::after): Deleted.
+        (.console-message, .console-user-command): Deleted.
+        (.console-message::before, .console-user-command::before, .javascript-prompt::before, .console-group-title::before): Deleted.
+        (.console-group): Deleted.
+        (.console-debug-level .console-message-text): Deleted.
+        (.console-debug-level::before): Deleted.
+        (.console-group-messages .section .header): Deleted.
+        (.console-group-messages .outline-disclosure): Deleted.
+        (.console-group-messages .outline-disclosure > ol): Deleted.
+        (.outline-disclosure li.elements-drag-over .selection): Deleted.
+        (.outline-disclosure ol:focus li.selected .selection): Deleted.
+        (.outline-disclosure > ol): Deleted.
+        * UserInterface/Views/LogContentView.js:
+        (WebInspector.LogContentView.prototype._mousemove):
+        (WebInspector.LogContentView.prototype._updateMessagesSelection):
+        (WebInspector.LogContentView.prototype._isMessageVisible):
+        (WebInspector.LogContentView.prototype._isMessageSelected):
+        (WebInspector.LogContentView.prototype._selectAllMessages):
+        (WebInspector.LogContentView.prototype._unfilteredMessages):
+        (WebInspector.LogContentView.prototype._visibleMessages):
+        (WebInspector.LogContentView.prototype._filterMessages):
+        (WebInspector.LogContentView.prototype._leftArrowWasPressed):
+        (WebInspector.LogContentView.prototype._propertiesSectionDidUpdateContent):
+        (WebInspector.LogContentView.prototype._performSearch):
+        * UserInterface/Views/Section.css:
+        (.section .header .title::before):
+        (.section.expanded .header .title::before):
+        (.section .header .title, .event-bar .header .title):
+        (.properties-tree li.parent::before):
+        (.section .header::before): Deleted.
+        (.section.expanded .header::before): Deleted.
+
+2015-02-15  Brian J. Burg  <burg@cs.washington.edu>
+
+        Web Inspector: remove unused XHR replay code
+        https://bugs.webkit.org/show_bug.cgi?id=141622
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Protocol/Legacy/7.0/InspectorBackendCommands.js:
+        * UserInterface/Protocol/Legacy/8.0/InspectorBackendCommands.js:
+        * Versions/Inspector-iOS-7.0.json:
+        * Versions/Inspector-iOS-8.0.json:
+
+2015-02-14  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Remove specificity approximation
+        https://bugs.webkit.org/show_bug.cgi?id=141600
+
+        Reviewed by Timothy Hatcher.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        * UserInterface/Views/CSSStyleDeclarationSection.js:
+        (WebInspector.CSSStyleDeclarationSection.prototype.refresh.appendSelector):
+
+2015-02-13  Timothy Hatcher  <timothy@apple.com>
+
+        Web Inspector: support better git diff of localizedStrings.js
+        https://bugs.webkit.org/show_bug.cgi?id=137237
+
+        Reviewed by Joseph Pecoraro.
+
+        * .gitattributes: Added.
+
+2015-02-12  Brian J. Burg  <burg@cs.washington.edu>
+
+        Web Inspector: add keyboard shortcut to enable/disable all breakpoints
+        https://bugs.webkit.org/show_bug.cgi?id=141527
+
+        Reviewed by Joseph Pecoraro.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        * UserInterface/Views/DebuggerSidebarPanel.js:
+        (WebInspector.DebuggerSidebarPanel): Bind Command/Control + Y to toggle breakpoints button.
+
+2015-02-12  Brian J. Burg  <burg@cs.washington.edu>
+
+        Web Inspector: support adding and removing timelines to the timeline sidebar panel and overview
+        https://bugs.webkit.org/show_bug.cgi?id=138434
+
+        Reviewed by Timothy Hatcher.
+
+        A timeline recording's timelines should not be static. This patch adds relevant machinery to
+        dynamically add and remove timelines from the Timeline model object and its various views.
+
+        From the model side, this is a simple change that adds TimelineAdded and TimelineRemoved events.
+        The timeline views and timeline sidebar require more extensive changes to support this functionality.
+        Instead of keeping a fixed set of timeline tree elements, the sidebar view now adds and removes
+        tree elements to reflect the available timelines for the displayed timeline recording.
+
+        This change also includes several minor cleanups, such as appending 'Element' to view properties that
+        are DOM elements, and renaming TimelineContentView to TimelineRecordingContentView.
+
+        * UserInterface/Controllers/TimelineManager.js:
+        (WebInspector.TimelineManager.prototype._loadNewRecording):
+        Populate predefined network, layout, and script timelines here after constructing the recording.
+
+        * UserInterface/Main.html:
+        * UserInterface/Models/Timeline.js:
+        Move hardcoded class names and localized strings to these base class methods. This is not implemented
+        using overridden methods because not all timeline types have their own subclasses. Add a dummy
+        implementation of saveIdentityToCookie() to avoid warnings when saving sidebar panel selection state.
+
+        (WebInspector.Timeline.prototype.get type):
+        (WebInspector.Timeline.prototype.get displayName): Added.
+        (WebInspector.Timeline.prototype.get iconClassName): Added.
+        (WebInspector.Timeline.prototype.addRecord):
+        * UserInterface/Models/TimelineRecording.js:
+        (WebInspector.TimelineRecording):
+        (WebInspector.TimelineRecording.prototype.addTimeline.set timeline): Added.
+        (WebInspector.TimelineRecording.prototype.addTimeline): Added.
+        (WebInspector.TimelineRecording.prototype.removeTimeline.get this): Added.
+        (WebInspector.TimelineRecording.prototype.removeTimeline): Added.
+        * UserInterface/Views/ContentView.js:
+        (WebInspector.ContentView):
+        * UserInterface/Views/LayoutTimelineView.css:
+        (.sidebar > .panel.navigation.timeline.timeline-recording-content-view-showing .navigation-sidebar-panel-content-tree-outline.layout .item .subtitle):
+        (.sidebar > .panel.navigation.timeline.timeline-content-view-showing .navigation-sidebar-panel-content-tree-outline.layout .item .subtitle): Deleted.
+        * UserInterface/Views/LayoutTimelineView.js:
+        (WebInspector.LayoutTimelineView.prototype._treeElementSelected):
+        (WebInspector.LayoutTimelineView.prototype._closeStatusButtonClicked):
+        * UserInterface/Views/NavigationSidebarPanel.js:
+        (WebInspector.NavigationSidebarPanel.prototype.saveStateToCookie): Fix error message formatting.
+        (WebInspector.NavigationSidebarPanel.prototype._updateFilter):
+        * UserInterface/Views/NetworkTimelineView.css:
+        (.sidebar > .panel.navigation.timeline.timeline-recording-content-view-showing .navigation-sidebar-panel-content-tree-outline.network .item .subtitle):
+        (.sidebar > .panel.navigation.timeline.timeline-content-view-showing .navigation-sidebar-panel-content-tree-outline.network .item .subtitle): Deleted.
+        * UserInterface/Views/NetworkTimelineView.js:
+        (WebInspector.NetworkTimelineView.prototype._closeStatusButtonClicked):
+        * UserInterface/Views/ScriptTimelineView.css:
+        (.sidebar > .panel.navigation.timeline.timeline-recording-content-view-showing .navigation-sidebar-panel-content-tree-outline.script .item .subtitle):
+        (.sidebar > .panel.navigation.timeline.timeline-content-view-showing .navigation-sidebar-panel-content-tree-outline.script .item .subtitle): Deleted.
+        * UserInterface/Views/ScriptTimelineView.js:
+        (WebInspector.ScriptTimelineView.prototype._treeElementSelected):
+        (WebInspector.ScriptTimelineView.prototype._closeStatusButtonClicked):
+        * UserInterface/Views/TimelineOverview.js:
+        Convert this class to use the representedObject class pattern. It manages its own mapping from timelines
+        to overview graph views. Append 'Element' to some properties holding DOM elements.
+        (WebInspector.TimelineOverview):
+        (WebInspector.TimelineOverview.prototype.get visibleDuration):
+        (WebInspector.TimelineOverview.prototype.reset):
+        (WebInspector.TimelineOverview.prototype.updateLayout):
+        (WebInspector.TimelineOverview.prototype._handleScrollEvent):
+        (WebInspector.TimelineOverview.prototype._handleWheelEvent):
+        (WebInspector.TimelineOverview.prototype._timelineRemoved):
+        (WebInspector.TimelineOverview.prototype.updateLayoutIfNeeded):
+        (WebInspector.TimelineOverview.prototype._timeRangeSelectionChanged):
+        * UserInterface/Views/TimelineRecordingContentView.css: Renamed from Source/WebInspectorUI/UserInterface/Views/TimelineContentView.css.
+        Remove hard-coded top offsets and heights that need to be dynamically calculated.
+        (.content-view.timeline-recording > .timeline-overview):
+        (.content-view.timeline-recording > .view-container):
+        (.content-view.timeline-recording > .view-container > .timeline-view > .data-grid td):
+        (.content-view.timeline-recording > .view-container > .timeline-view > .data-grid table.data):
+        * UserInterface/Views/TimelineRecordingContentView.js: Renamed from Source/WebInspectorUI/UserInterface/Views/TimelineContentView.js.
+        Manage timeline views and path components dynamically. Adjust view heights as necessary. Append 'Element'
+        to some properties holding DOM elements.
+        (WebInspector.TimelineRecordingContentView):
+        (WebInspector.TimelineRecordingContentView.prototype.showOverviewTimelineView):
+        (WebInspector.TimelineRecordingContentView.prototype.showTimelineViewForTimeline):
+        (WebInspector.TimelineRecordingContentView.prototype.get allowedNavigationSidebarPanels):
+        (WebInspector.TimelineRecordingContentView.prototype.get supportsSplitContentBrowser):
+        (WebInspector.TimelineRecordingContentView.prototype.get navigationItems):
+        (WebInspector.TimelineRecordingContentView.prototype.get currentTimelineView):
+        (WebInspector.TimelineRecordingContentView.prototype.shown):
+        (WebInspector.TimelineRecordingContentView.prototype.hidden):
+        (WebInspector.TimelineRecordingContentView.prototype.filterDidChange):
+        (WebInspector.TimelineRecordingContentView.prototype.updateLayout):
+        (WebInspector.TimelineRecordingContentView.prototype.saveToCookie):
+        (WebInspector.TimelineRecordingContentView.prototype.restoreFromCookie):
+        (WebInspector.TimelineRecordingContentView.prototype.get matchTreeElementAgainstCustomFilters.checkTimeBounds):
+        (WebInspector.TimelineRecordingContentView.prototype.get matchTreeElementAgainstCustomFilters):
+        (WebInspector.TimelineRecordingContentView.prototype._pathComponentSelected):
+        (WebInspector.TimelineRecordingContentView.prototype._timelineViewSelectionPathComponentsDidChange):
+        (WebInspector.TimelineRecordingContentView.prototype._showTimelineView):
+        (WebInspector.TimelineRecordingContentView.prototype._update):
+        (WebInspector.TimelineRecordingContentView.prototype._updateTimes):
+        (WebInspector.TimelineRecordingContentView.prototype._startUpdatingCurrentTime):
+        (WebInspector.TimelineRecordingContentView.prototype._stopUpdatingCurrentTime):
+        (WebInspector.TimelineRecordingContentView.prototype._capturingStarted):
+        (WebInspector.TimelineRecordingContentView.prototype._capturingStopped):
+        (WebInspector.TimelineRecordingContentView.prototype._debuggerPaused):
+        (WebInspector.TimelineRecordingContentView.prototype._debuggerResumed):
+        Fix a minor regression where we make a useless call to stop updating the time.
+
+        (WebInspector.TimelineRecordingContentView.prototype._recordingTimesUpdated):
+        (WebInspector.TimelineRecordingContentView.prototype._clearTimeline):
+        (WebInspector.TimelineRecordingContentView.prototype._timelineRemoved):
+        (WebInspector.TimelineRecordingContentView.prototype._timelineCountChanged):
+        (WebInspector.TimelineRecordingContentView.prototype._recordingReset):
+        (WebInspector.TimelineRecordingContentView.prototype._recordingUnloaded):
+        (WebInspector.TimelineRecordingContentView.prototype._timeRangeSelectionChanged):
+        * UserInterface/Views/TimelineSidebarPanel.css:
+        (.sidebar > .panel.navigation.timeline.timeline-recording-content-view-showing > .content):
+        (.sidebar > .panel.navigation.timeline.timeline-content-view-showing > .content): Deleted.
+        * UserInterface/Views/TimelineSidebarPanel.js:
+        Manage timeline tree elements dynamically. Adjust view heights as necessary. Append 'Element'
+        to some properties holding DOM elements. Keep track of the displayed recording and view explicitly.
+        (WebInspector.TimelineSidebarPanel):
+        (WebInspector.TimelineSidebarPanel.prototype.shown):
+        (WebInspector.TimelineSidebarPanel.prototype.showDefaultContentView):
+        (WebInspector.TimelineSidebarPanel.prototype.treeElementForRepresentedObject.looselyCompareRepresentedObjects):
+        (WebInspector.TimelineSidebarPanel.prototype.showTimelineOverview):
+        (WebInspector.TimelineSidebarPanel.prototype.updateFilter):
+        (WebInspector.TimelineSidebarPanel.prototype.matchTreeElementAgainstCustomFilters):
+        (WebInspector.TimelineSidebarPanel.prototype.canShowDifferentContentView):
+        (WebInspector.TimelineSidebarPanel.prototype.saveStateToCookie):
+        (WebInspector.TimelineSidebarPanel.prototype.get if):
+        (WebInspector.TimelineSidebarPanel.prototype._contentBrowserCurrentContentViewDidChange):
+        (WebInspector.TimelineSidebarPanel.prototype._recordingCountChanged):
+        (WebInspector.TimelineSidebarPanel.prototype._recordingSelected):
+        (WebInspector.TimelineSidebarPanel.prototype._recordingLoaded):
+        (WebInspector.TimelineSidebarPanel.prototype._timelineRemoved):
+        (WebInspector.TimelineSidebarPanel.prototype._timelineCountChanged):
+        (WebInspector.TimelineSidebarPanel.createTimelineTreeElement): Deleted.
+        (WebInspector.TimelineSidebarPanel.prototype.restoreStateFromCookie):
+        * UserInterface/Views/TimelineView.css:
+        (.panel.navigation.timeline.timeline-recording-content-view-showing > .content > .navigation-sidebar-panel-content-tree-outline):
+        (.panel.navigation.timeline.timeline-content-view-showing > .content > .navigation-sidebar-panel-content-tree-outline): Deleted.
+
+2015-02-12  Brian J. Burg  <burg@cs.washington.edu>
+
+        Web Inspector: Large background image fails to load in inspector
+        https://bugs.webkit.org/show_bug.cgi?id=141405
+
+        Reviewed by Timothy Hatcher.
+
+        Convert base64-encoded resource data to binary data using Uint8Array and Blobs.
+        Use object URLs for blobs instead of data URLs when setting image 'src' attribute
+        and in @font-face urls. This conversion happens when the backend indicates that
+        resource content is base64-encoded.
+
+        Update image and font clients of resource-fetching functionality so that they use
+        object URLs correctly. Add some plumbing so that Blobs can be constructed with
+        the correct mime-type.
+
+        * UserInterface/Base/Utilities.js:
+        (decodeBase64ToBlob): Added.
+        * UserInterface/Models/CSSStyleSheet.js:
+        (WebInspector.CSSStyleSheet.prototype.get mimeType): Added.
+        * UserInterface/Models/Resource.js:
+        (WebInspector.Resource.prototype.createObjectURL): Added.
+        (WebInspector.Resource.prototype.getImageSize.imageDidLoad):
+        (WebInspector.Resource.prototype.getImageSize):
+        (WebInspector.Resource.prototype.get contentURL): Deleted.
+        * UserInterface/Models/Script.js:
+        (WebInspector.Script.prototype.get mimeType): Added.
+        * UserInterface/Models/SourceCode.js:
+        (WebInspector.SourceCode.prototype.get mimeType): Added.
+        (WebInspector.SourceCode.prototype._processContent):
+        (WebInspector.SourceCode.prototype.get contentIsBase64Encoded): Deleted.
+        * UserInterface/Models/SourceCodeRevision.js:
+        (WebInspector.SourceCodeRevision):
+        (WebInspector.SourceCodeRevision.prototype.copy):
+        (WebInspector.SourceCodeRevision.prototype.get contentIsBase64Encoded): Deleted.
+        (WebInspector.SourceCodeRevision.prototype.set contentIsBase64Encoded): Deleted.
+        * UserInterface/Views/FontResourceContentView.js:
+        (WebInspector.FontResourceContentView.prototype.hidden):
+        (WebInspector.FontResourceContentView.prototype.closed):
+        * UserInterface/Views/ImageResourceContentView.js:
+        (WebInspector.ImageResourceContentView.prototype.contentAvailable):
+
+2015-02-11  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: REGRESSION: Clicking selected item in the sidebar second time should scroll to the corresponding line
+        https://bugs.webkit.org/show_bug.cgi?id=140280
+
+        Reviewed by Brian Burg.
+
+        * UserInterface/Views/ContentViewContainer.js:
+        (WebInspector.ContentViewContainer.prototype.showContentView):
+        Perform scolling regardless of the navigation history. Since scrolling source code doesn't introduce a BackForwardEntry,
+        it's possible that the actual content view has a different scroll position.
+
+2015-02-10  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Better handle unknown release versions
+        https://bugs.webkit.org/show_bug.cgi?id=141454
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Base/Platform.js:
+        If given an unknown Mac OS X version, at least parse
+        the version number in WebInspector.Platform.
+
+2015-02-10  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: Make collapsed sidebars undraggable
+        https://bugs.webkit.org/show_bug.cgi?id=140664
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Views/Sidebar.css:
+        (.sidebar.collapsed):
+        (.sidebar.collapsed.right > .resizer): Deleted.
+        (.sidebar.collapsed.left > .resizer): Deleted.
+        * UserInterface/Views/Sidebar.js:
+        (WebInspector.Sidebar):
+        (WebInspector.Sidebar.prototype._resizerMouseDown):
+        (WebInspector.Sidebar.prototype._resizerMouseMoved):
+        (WebInspector.Sidebar.prototype._resizerDoubleClicked): Deleted.
+
+2015-02-10  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: CSS Pretty Printing: still fails fails to put space between rgb(...) and numbers in minified gradients
+        https://bugs.webkit.org/show_bug.cgi?id=141411
+
+        Reviewed by Timothy Hatcher.
+
+        * Tools/PrettyPrinting/CodeMirrorFormatters.js:
+        * UserInterface/Views/CodeMirrorFormatters.js:
+        Token actually was "number m-css" so we should check token strings
+        more robustly, like elsewhere in the formatters.
+
+2015-02-09  Brian J. Burg  <burg@cs.washington.edu>
+
+        Web Inspector: Uncaught exception when reporting wrong backend command call signature
+        https://bugs.webkit.org/show_bug.cgi?id=141401
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/Protocol/InspectorBackend.js:
+        (InspectorBackend.Command.prototype._invokeWithArguments): Fix wrong variable name.
+
+2015-02-06  Jono Wells  <jonowells@apple.com>
+
+        Web Inspector: REGRESSION: CSS Resource appears as empty after editing it via Styles sidebar
+        https://bugs.webkit.org/show_bug.cgi?id=140586
+
+        Reviewed by Timothy Hatcher.
+
+        Update SourceCode#_processContent to properly handle the promise returned from CSSAgent so that the content
+        will properly update when a style has changed. Properly clear the existing _requestContentPromise on the
+        stylesheet so that the content will update correctly.
+
+        * UserInterface/Controllers/CSSStyleManager.js: Drive-by style updates.
+        (WebInspector.CSSStyleManager.prototype._fetchInfoForAllStyleSheets):
+        * UserInterface/Models/CSSStyleSheet.js: Drive-by inheritance style update.
+        (WebInspector.CSSStyleSheet.prototype.requestContentFromBackend): Remove unnecessary backend promise function call.
+        * UserInterface/Models/Resource.js: Drive-by removal of unused variable.
+        * UserInterface/Models/SourceCode.js:
+        (WebInspector.SourceCode.prototype.markContentAsStale): Clear _requestContentPromise.
+        (WebInspector.SourceCode.prototype._processContent): Handle `parameters.text` correctly.
+
+2015-02-04  Jono Wells  <jonowells@apple.com>
+
+        Web Inspector: REGRESSION: Inline SourceMap resources show empty content when opened.
+        https://bugs.webkit.org/show_bug.cgi?id=141225
+
+        Reviewed by Timothy Hatcher.
+
+        Change WebInspector.SourceMapResource.prototype.requestContentFromBackend to correctly and consistently handle
+        calls to NetworkAgent. The helper function sourceMapResourceLoaded will now properly handle parameters as a single
+        payload, including manual calls in the case where the source map content is in a data URI. Also
+        WebInspector.SourceCode.prototype._processContent now properly handles an error string used for displaying
+        resource loading error messages in the resource content view.
+
+        * UserInterface/Models/Resource.js: drive-by style fix.
+
+        * UserInterface/Models/SourceCode.js:
+        (WebInspector.SourceCode.prototype._processContent):
+        Properly handle error string.
+
+        * UserInterface/Models/SourceMapResource.js:
+        (WebInspector.SourceMapResource.prototype.requestContentFromBackend):
+        (WebInspector.SourceMapResource.prototype.requestContentFromBackend.sourceMapResourceLoaded):
+        Formerly sourceMapResourceLoadError, now handles parameters from the NetworkAgent correctly.
+
+        (WebInspector.SourceMapResource.prototype.requestContentFromBackend.sourceMapResourceLoadError):
+        This function now handles NetworkAgent errors only.
+
+2015-02-05  Brian J. Burg  <burg@cs.washington.edu>
+
+        Web Inspector: eliminate some unnecessary layout/painting in timeline overview and ruler
+        https://bugs.webkit.org/show_bug.cgi?id=141293
+
+        Reviewed by Timothy Hatcher.
+
+        The timeline overview's ruler was forcing repaints of divider labels even if the labels
+        had not changed since the last requestAnimationFrame. Bail out early if nothing changed.
+
+        The timeline overview and its graphs were updating layout using requestAnimationFrame
+        even when the TimelineContentView is not visible. Fix this by propagating visibility
+        changes to subviews, and not updating layout when hidden.
+
+        The above change also fixes an assertion sometimes encountered when the timeline view
+        tries to cache an element's offset width, but cannot because it isn't visible.
+
+        * UserInterface/Views/TimelineContentView.js:
+        (WebInspector.TimelineContentView.prototype.shown):
+        (WebInspector.TimelineContentView.prototype.hidden):
+        * UserInterface/Views/TimelineOverview.js:
+        (WebInspector.TimelineOverview.prototype.get visible):
+        (WebInspector.TimelineOverview.prototype.shown):
+        (WebInspector.TimelineOverview.prototype.hidden):
+        (WebInspector.TimelineOverview.prototype._needsLayout):
+        * UserInterface/Views/TimelineOverviewGraph.js:
+        (WebInspector.TimelineOverviewGraph.prototype.get visible):
+        (WebInspector.TimelineOverviewGraph.prototype.shown):
+        (WebInspector.TimelineOverviewGraph.prototype.hidden):
+        (WebInspector.TimelineOverviewGraph.prototype.needsLayout):
+        * UserInterface/Views/TimelineRuler.js:
+        (WebInspector.TimelineRuler.prototype.updateLayout):
+
+2015-02-04  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: ES6: Improved Console Support for Symbol Objects
+        https://bugs.webkit.org/show_bug.cgi?id=141173
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Protocol/RemoteObject.js:
+        (WebInspector.RemoteObject):
+        (WebInspector.RemoteObject.prototype._isSymbol):
+        Symbols have an objectId because it is a non-primitive that cannot be passed
+        by value, however it cannot have properties, so handle some cases.
+
+        * UserInterface/Views/LogContentView.css:
+        (.console-formatted-symbol):
+        Give Symbol's their own color.
+
+2015-02-04  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: Insertion bar (caret) is hidden behind the placeholder text in the style editor
+        https://bugs.webkit.org/show_bug.cgi?id=139659
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Views/CSSStyleDeclarationTextEditor.css:
+        (.css-style-text-editor > .CodeMirror .CodeMirror-placeholder):
+        Use non-monospace font to fit the placeholder text on a single line and
+        match the color if the native placeholder.
+
+2015-02-04  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: console.table with columnName filter for non-existent property should still show column
+        https://bugs.webkit.org/show_bug.cgi?id=141066
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Views/ConsoleMessageImpl.js:
+        (WebInspector.ConsoleMessageImpl.prototype._appendPropertyPreviews):
+        (WebInspector.ConsoleMessageImpl.prototype._userProvidedColumnNames):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsTable):
+        If a second argument was provided to console.table, try to extract a list
+        of string names to use for the object properties. Output a table with
+        the provided column names, in the specified order. Also, use this
+        opportunity to mark missing properties with an em dash.
+
+2015-02-02  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: CSS Autocompletion: Autodetect many color supporting properties
+        https://bugs.webkit.org/show_bug.cgi?id=141166
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Base/Utilities.js:
+        Add String.prototype.endsWith. Group String extensions together.
+
+        * UserInterface/Models/CSSKeywordCompletions.js:
+        (WebInspector.CSSKeywordCompletions.forProperty):
+        If a property name ends in "color", provide CSS color completions.
+
+        (WebInspector.CSSKeywordCompletions.isColorAwareProperty): Deleted.
+        This was unused and disagrees slightly with the implementation above.
+
+2015-02-02  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Support console.table
+        https://bugs.webkit.org/show_bug.cgi?id=141058
+
+        Reviewed by Timothy Hatcher.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        New "Index", "(Index)", "Value", table header strings.
+
+        * UserInterface/Views/ConsoleMessage.js:
+        Add "Table", but add FIXMEs to consider using the protocol generated enums.
+
+        * UserInterface/Views/ConsoleMessageImpl.js:
+        (WebInspector.ConsoleMessageImpl.prototype._format):
+        Special case console.table messages.
+
+        (WebInspector.ConsoleMessageImpl.prototype._appendPropertyPreviews):
+        (WebInspector.ConsoleMessageImpl.prototype._propertyPreviewElement):
+        Factor out ProjectPreview printing. Also, replace newlines in strings
+        with return characters, like we did elsewhere.
+
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsTable):
+        Ultimately try to create a DataGrid from the output. Search first
+        for rich object data in the list. If no rich object data is found
+        just check for simple values. If the table is lossy, also do
+        a log of the object in case the user wants to see more data.
+
+
+        * UserInterface/Views/DataGrid.js:
+        (WebInspector.DataGrid):
+        The for..in enumeration is unordered and may not give us the
+        column ordering we wanted. So include an optional preferred
+        column names list to get the preferred order.
+
+        (WebInspector.DataGrid.createSortableDataGrid):
+        Numerous bug fixes here. Accidental globals, typos, and sorting failures.
+
+        (WebInspector.DataGrid.prototype.autoSizeColumns):
+        (WebInspector.DataGrid.prototype.textForDataGridNodeColumn):
+        (WebInspector.DataGrid.prototype._copyTextForDataGridNode):
+        Create a generic method to get the text for a datagrid node in a column.
+        This is important for getting the text from console.table previews which
+        contains Nodes.
+
+        * UserInterface/Views/LogContentView.css:
+        (.console-messages:focus .console-item.selected .data-grid tr.selected):
+        (.console-item .data-grid tr.selected):
+        DataGrid selection colors while in the console which may or may
+        not have selected console items.
+
+2015-02-02  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Extend CSS.getSupportedCSSProperties to provide values for properties for CSS Augmented JSContext
+        https://bugs.webkit.org/show_bug.cgi?id=141064
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Models/CSSCompletions.js:
+        * UserInterface/Models/CSSKeywordCompletions.js:
+        (WebInspector.CSSKeywordCompletions.addCustomCompletions):
+        (WebInspector.CSSKeywordCompletions.addPropertyCompletionValues):
+        If a property is specified with custom values, extend the
+        keyword completions map to make those values available
+        in autocompletion.
+
+2015-01-30  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Remote Web Inspector should not show undock toolbar buttons
+        https://bugs.webkit.org/show_bug.cgi?id=141061
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Base/Main.js:
+        (WebInspector.contentLoaded):
+        Be sure to update the toolbar's dock navigation icons because they
+        may need to be hidden (the default state).
+
+2015-01-29  Saam Barati  <saambarati1@gmail.com>
+
+        Web Inspector: Allow text selection when the BasicBlockAnnotator is enabled
+        https://bugs.webkit.org/show_bug.cgi?id=140987
+
+        Reviewed by Timothy Hatcher.
+
+        Because the BasicBlockAnnotator no longer sets the background color of
+        lines that haven't executed to gray, text selection while the
+        BasicBlockAnnotator is enabled no longer results in a bad user interface.
+        This patch both allows text selection while the BasicBlockAnnotator is
+        enabled and also removes the now unused listeners to CodeMirror's focus
+        and blur events.
+
+        * UserInterface/Views/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor):
+        (WebInspector.SourceCodeTextEditor.prototype._setTypeTokenAnnotatorEnabledState):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenScrollEventHandler.scrollHandler):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenScrollEventHandler):
+        (WebInspector.SourceCodeTextEditor.prototype.gainedFocus): Deleted.
+        (WebInspector.SourceCodeTextEditor.prototype.lostFocus): Deleted.
+        * UserInterface/Views/TextEditor.js:
+        (WebInspector.TextEditor):
+        (WebInspector.TextEditor.prototype.gainedFocus): Deleted.
+        (WebInspector.TextEditor.prototype.lostFocus): Deleted.
+
+2015-01-29  Saam Barati  <saambarati1@gmail.com>
+
+        Web Inspector: Make BasicBlockAnnotator lessen the saturation of syntax highlighting instead of graying out unexecuted code
+        https://bugs.webkit.org/show_bug.cgi?id=141011
+
+        Reviewed by Timothy Hatcher.
+
+        This patch removes a lot of the complicated logic associated around 
+        determining which code can be grayed out by the BasicBlockAnnotator. 
+        Instead, the BasicBlockAnnotator now applies a CSS class to all the
+        code that has not executed which lessens the saturation of the 
+        syntax coloring for the code. This creates both a nicer user
+        interface and a nicer user experience because it makes reading
+        source code with the BasicBlockAnnotator enabled more pleasant.
+
+        * UserInterface/Controllers/BasicBlockAnnotator.js:
+        (WebInspector.BasicBlockAnnotator.prototype._annotateBasicBlockExecutionRanges.):
+        (WebInspector.BasicBlockAnnotator.prototype._annotateBasicBlockExecutionRanges):
+        (WebInspector.BasicBlockAnnotator.prototype.set _highlightTextForBasicBlock):
+        (WebInspector.BasicBlockAnnotator.prototype._isTextRangeOnlyWhitespace): Deleted.
+        (WebInspector.BasicBlockAnnotator.prototype._isTextRangeOnlyClosingBrace): Deleted.
+        (_canGrayOutEntireLine): Deleted.
+        (_grayOutLine): Deleted.
+        (_clearRangeForBasicBlockMarker.get marker): Deleted.
+        (_clearRangeForBasicBlockMarker): Deleted.
+        * UserInterface/Views/SourceCodeTextEditor.css:
+        (.hover-menu.color > img):
+        (.basic-block-has-not-executed): Deleted.
+        (.basic-block-has-not-executed-prepend::before): Deleted.
+        * UserInterface/Views/SyntaxHighlightingDefaultTheme.css:
+        (.cm-s-default .basic-block-has-not-executed):
+        (.cm-s-default .basic-block-has-not-executed.cm-comment):
+        (.cm-s-default .basic-block-has-not-executed.cm-m-css:matches(.cm-atom, .cm-meta, .cm-variable-3, .cm-property)):
+        (.cm-s-default .basic-block-has-not-executed:matches(.cm-number, .cm-atom.cm-hex-color)):
+        (.cm-s-default .basic-block-has-not-executed.cm-string):
+        (.cm-s-default .basic-block-has-not-executed.cm-m-xml.cm-meta):
+        (.cm-s-default .basic-block-has-not-executed.cm-m-xml.cm-attribute):
+
+2015-01-29  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: ES6: Improved Console Format for Set and Map Objects (like Arrays)
+        https://bugs.webkit.org/show_bug.cgi?id=122867
+
+        Reviewed by Timothy Hatcher.
+
+        This includes Set/Map/WeakMap previews:
+
+            - Set previews: Set {1, 2, 3}
+            - Map/WeakMap previews: Map {1 => 2, "key" => "value"}
+
+        For WeakMaps:
+        
+            - the preview itself shows up to 5 key/value pairs from when the object was logged
+            - the previews are strings only, and thus do not retain the actual keys/values
+            - when expanding, we get RemoteObjects and strongly retain the keys/values
+            - when collapsing / clearing, we release the RemoteObjects so they can get collected
+
+        Currently you collapse the <entries> section, and re-expand later the
+        collection may show you knew keys/values. The UI for this will change.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        * UserInterface/Protocol/RemoteObject.js:
+        (WebInspector.RemoteObject.prototype.isCollectionType):
+        (WebInspector.RemoteObject.prototype.isWeakCollection):
+        (WebInspector.RemoteObject.prototype.getCollectionEntries):
+        (WebInspector.RemoteObject.prototype.releaseWeakCollectionEntries):
+        (WebInspector.RemoteObject.prototype.arrayLength):
+        (WebInspector.RemoteObject.prototype._weakCollectionObjectGroup):
+        High level functions for dealing with a RemoteObject that may be a
+        collection / weak collection.
+
+        * UserInterface/Views/ConsoleMessageImpl.js:
+        (WebInspector.ConsoleMessageImpl):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsObject):
+        Include default formatters for collection types.
+
+        (WebInspector.ConsoleMessageImpl.prototype._appendPreview):
+        (WebInspector.ConsoleMessageImpl.prototype._appendEntryPreviews):
+        (WebInspector.ConsoleMessageImpl.prototype._appendPropertyPreviews):
+        (WebInspector.ConsoleMessageImpl.prototype._appendValuePreview):
+        (WebInspector.ConsoleMessageImpl.prototype._appendObjectPreview): Deleted.
+        Refactor preview generation a bit and include a specific path for
+        generation the output of a preview with "entries".
+
+        * UserInterface/Views/LogContentView.css:
+        (.console-object-preview-body .console-object-preview-name.console-object-preview-name-Object):
+        With nested Object previews ("Map {{a:1} => 1}") don't show "Object" for the inner
+        object preview. Only show it if it has a unique type ("Map {Foo {a:1} => 1}")
+
+        (.console-formatted-object, .console-formatted-node, .console-formatted-error, .console-formatted-map, .console-formatted-set, .console-formatted-weakmap):
+        (:matches(.console-formatted-object, .console-formatted-node, .console-formatted-error, .console-formatted-map, .console-formatted-set, .console-formatted-weakmap) .section):
+        (:matches(.console-formatted-object, .console-formatted-node, .console-formatted-error, .console-formatted-map, .console-formatted-set, .console-formatted-weakmap) .properties):
+        Make map/set/weakmap display like Objects.
+
+        * UserInterface/Views/ObjectPropertiesSection.js:
+        (WebInspector.ObjectPropertiesSection.prototype.update):
+        (WebInspector.ObjectPropertiesSection.prototype.updateProperties):
+        (WebInspector.ObjectPropertyTreeElement.prototype.onpopulate.callback):
+        (WebInspector.ObjectPropertyTreeElement.prototype.onpopulate):
+        (WebInspector.CollectionEntriesMainTreeElement):
+        (WebInspector.CollectionEntriesMainTreeElement.prototype.onexpand.callback):
+        (WebInspector.CollectionEntriesMainTreeElement.prototype.onexpand):
+        (WebInspector.CollectionEntriesMainTreeElement.prototype.oncollapse):
+        (WebInspector.CollectionEntriesMainTreeElement.prototype.ondetach):
+        (WebInspector.CollectionEntriesMainTreeElement.prototype._trackWeakEntries):
+        (WebInspector.CollectionEntriesMainTreeElement.prototype._untrackWeakEntries):
+        (WebInspector.CollectionEntryTreeElement):
+        (WebInspector.CollectionEntryTreeElement.prototype.onpopulate):
+        (WebInspector.CollectionEntryTreeElement.prototype.onattach):
+        (WebInspector.EmptyCollectionTreeElement):
+        (WebInspector.ObjectPropertiesSection.prototype.update.callback): Deleted.
+        Add a quick UI for exploring the entries of a collection. We are actively
+        changing the styles of objects in the Console, so this should change soon.
+
+2015-01-28  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Change Main Frame Status Buttons when debugging Augmented JSContext
+        https://bugs.webkit.org/show_bug.cgi?id=141006
+
+        Reviewed by Timothy Hatcher.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        New "Restart" string.
+
+        * UserInterface/Base/Main.js:
+        (WebInspector.canArchiveMainFrame):
+        * UserInterface/Views/FrameTreeElement.js:
+        (WebInspector.FrameTreeElement.prototype.updateStatusForMainFrame):
+        (WebInspector.FrameTreeElement.prototype._updateDownloadButton):
+        Update the tooltip when in a non-Web debuggable, and only show
+        the Download button when in a Web debuggable.
+
+        * UserInterface/Views/TreeElementStatusButton.js:
+        (WebInspector.TreeElementStatusButton.prototype.set hidden):
+        Oops! The implementation was backwards. Simplify with classList.toggle.
+
+2015-01-28  Brian J. Burg  <burg@cs.washington.edu>
+
+        Web Inspector: remove CSS.setPropertyText, CSS.toggleProperty and related dead code
+        https://bugs.webkit.org/show_bug.cgi?id=140961
+
+        Reviewed by Timothy Hatcher.
+
+        Setters for CSSProperty (except override) are not used, so delete them. These setters
+        and their callees in DOMNodeStyles were the only clients of the removed protocol commands.
+
+        * UserInterface/Models/CSSProperty.js:
+        (WebInspector.CSSProperty.prototype.update):
+        (WebInspector.CSSProperty.prototype.get name):
+        (WebInspector.CSSProperty.prototype.get value):
+        (WebInspector.CSSProperty.prototype.get priority):
+        (WebInspector.CSSProperty.prototype.hasOtherVendorNameOrKeyword):
+        (WebInspector.CSSProperty.prototype.set text): Deleted.
+        (WebInspector.CSSProperty.prototype.set name): Deleted.
+        (WebInspector.CSSProperty.prototype.set value): Deleted.
+        (WebInspector.CSSProperty.prototype.set important): Deleted.
+        (WebInspector.CSSProperty.prototype.set priority): Deleted.
+        (WebInspector.CSSProperty.prototype.set enabled): Deleted.
+        (WebInspector.CSSProperty.prototype.add): Deleted.
+        (WebInspector.CSSProperty.prototype.remove): Deleted.
+        (WebInspector.CSSProperty.prototype._updatePropertySoon.performUpdate): Deleted.
+        (WebInspector.CSSProperty.prototype._updatePropertySoon): Deleted.
+        (WebInspector.CSSProperty.prototype._cancelPendingUpdate): Deleted.
+        * UserInterface/Models/CSSStyleDeclaration.js:
+        (WebInspector.CSSStyleDeclaration.prototype.addProperty): Deleted.
+        (WebInspector.CSSStyleDeclaration.prototype.removeProperty): Deleted.
+        * UserInterface/Models/DOMNodeStyles.js:
+        (WebInspector.DOMNodeStyles.prototype.addEmptyRule):
+        (WebInspector.DOMNodeStyles.prototype.addRule): Deleted.
+        (WebInspector.DOMNodeStyles.prototype.changeProperty): Deleted.
+        (WebInspector.DOMNodeStyles.prototype.changePropertyText): Deleted.
+        (WebInspector.DOMNodeStyles.prototype.changePropertyEnabledState): Deleted.
+        (WebInspector.DOMNodeStyles.prototype.addProperty): Deleted.
+        (WebInspector.DOMNodeStyles.prototype.removeProperty): Deleted.
+        (WebInspector.DOMNodeStyles.prototype._handlePropertyChange): Deleted.
+        * UserInterface/Protocol/Legacy/6.0/InspectorBackendCommands.js:
+        * UserInterface/Protocol/Legacy/7.0/InspectorBackendCommands.js:
+        * UserInterface/Protocol/Legacy/8.0/InspectorBackendCommands.js:
+        * UserInterface/Views/RulesStyleDetailsPanel.js:
+        (WebInspector.RulesStyleDetailsPanel.prototype._newRuleClicked):
+        * Versions/Inspector-iOS-6.0.json:
+        * Versions/Inspector-iOS-7.0.json:
+        * Versions/Inspector-iOS-8.0.json:
+
+2015-01-28  Dana Burkart  <dburkart@apple.com>
+
+        Move ASan flag settings from DebugRelease.xcconfig to Base.xcconfig
+        https://bugs.webkit.org/show_bug.cgi?id=136765
+
+        Reviewed by Alexey Proskuryakov.
+
+        * Configurations/Base.xcconfig:
+        * Configurations/DebugRelease.xcconfig:
+
+2015-01-23  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Object Previews in the Console
+        https://bugs.webkit.org/show_bug.cgi?id=129204
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Controllers/JavaScriptLogViewController.js:
+        (WebInspector.JavaScriptLogViewController.prototype.consolePromptTextCommitted):
+        * UserInterface/Controllers/JavaScriptRuntimeCompletionProvider.js:
+        (get WebInspector.JavaScriptRuntimeCompletionProvider.prototype.):
+        Update RuntimeManager callsites that do not need object previews.
+
+        * UserInterface/Controllers/RuntimeManager.js:
+        (WebInspector.RuntimeManager.prototype.evalCallback):
+        (WebInspector.RuntimeManager.prototype.evaluateInInspectedWindow):
+        Update the main evaluate method to include a boolean parameter for
+        object previews. Most callers do not need them. Also, since previews
+        were not available on iOS 6, switch to invoke, to conditionally
+        include the command parameter.
+
+        * UserInterface/Protocol/RemoteObject.js:
+        (WebInspector.RemoteObject):
+        (WebInspector.RemoteObject.fromPayload):
+        (WebInspector.RemoteObject.prototype.get preview):
+        Store the preview from the payload.
+
+        * UserInterface/Views/ConsoleMessageImpl.js:
+        (WebInspector.ConsoleMessageImpl.prototype._format):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameter):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsNode):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsString):
+        (WebInspector.ConsoleMessageImpl.prototype._formatAsArrayEntry):
+        Pass an explicit false for most formatters to not use a preview if available.
+        
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsArray):
+        (WebInspector.ConsoleMessageImpl.prototype._formatParameterAsObject):
+        Currently only object types are previewed. Though we request previews
+        for arrays, we don't use the preview because we show a better preview
+        by just immediately requesting for a full non-preview property list.
+        
+        (WebInspector.ConsoleMessageImpl.prototype._appendObjectPreview):
+        Quickly output an object preview into the title element. The format
+        is "ClassName {prop: value...}". Elide the class name if it is "Object".
+        Also skip over certain preview properties that may not be useful
+        at a glance (like constructor, or accessors without values).
+
+        * UserInterface/Views/LogContentView.css:
+        (.console-object-preview):
+        (.console-formatted-array .console-object-preview):
+        (.console-object-preview-lossless):
+        (.expanded .console-object-preview):
+        Show lossy previews in italics.
+        Show lossless previews and array previews without italics.
+        Do not show the class name in the preview in italics when expanded.
+
+        (.console-object-preview .name):
+        Give preview property names the same color as ObjectPropertiesSection property names.
+        
+        (.expanded .console-object-preview > .console-object-preview-body):
+        When expanding an object, hide the preview.
+
+        (.console-object-preview > .console-object-preview-name.console-object-preview-name-Object):
+        (.expanded .console-object-preview > .console-object-preview-name.console-object-preview-name-Object):
+        For "Object" previews, hide the name "Object" when not expanded, and show it when expanded.
+
+2015-01-23  Saam Barati  <saambarati1@gmail.com>
+
+        Web Inspector: Disable *Annotators on minified files that aren't pretty printed
+        https://bugs.webkit.org/show_bug.cgi?id=140550
+
+        Reviewed by Timothy Hatcher.
+
+        When SourceCodeTextEditor speculates that a file is minified it 
+        sets a flag on itself that the Annotators will notice when pretty 
+        printing and turning on type profiling. 
+
+        SourceCodeTextEditor enforces the following two behaviors:
+
+        1. Always pretty print a file if we think it's minified while 
+        viewing type annotations. So, while viewing a minified file, 
+        if you press the type profiling button, the pretty printer will 
+        first reformat the file, then the type profiler will insert type annotations.
+
+        2. If the type profiler is enabled and we're viewing a pretty 
+        printed file that we think originally was minified, and the 
+        pretty printer is disabled via pressing the button, then the 
+        type profiler will also be disabled.
+
+        These two behaviors maintain a good user experience because 
+        it prevents a bad visual representation of profiler data and 
+        also prevents bad performance.
+
+        * UserInterface/Controllers/TypeTokenAnnotator.js:
+        (WebInspector.TypeTokenAnnotator.prototype.toggleTypeAnnotations): Deleted.
+        * UserInterface/Views/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor):
+        (WebInspector.SourceCodeTextEditor.prototype.shown):
+        (WebInspector.SourceCodeTextEditor.prototype.contentDidChange):
+        (WebInspector.SourceCodeTextEditor.prototype.toggleTypeAnnotations):
+        (WebInspector.SourceCodeTextEditor.prototype.prettyPrint):
+        (WebInspector.SourceCodeTextEditor.prototype._contentWillPopulate):
+        (WebInspector.SourceCodeTextEditor.prototype._populateWithContent):
+        (WebInspector.SourceCodeTextEditor.prototype._setTypeTokenAnnotatorEnabledState):
+
+2015-01-22  Jonathan Wells  <jonowells@apple.com>
+
+        Web Inspector: ResourceContentView.js incorrectly contains call to WebInspector.UIString with a variable parameter
+        https://bugs.webkit.org/show_bug.cgi?id=140268
+
+        Reviewed by Timothy Hatcher.
+
+        UIString no longer incorrectly used around variables. Drive-by fixes to prototype inheritance style.
+        Use of Promises corrected such that requesting content for a resource resolves rather than rejects if
+        a resource can't be found or has another error that isn't a web inspector error.
+
+        * Localizations/en.lproj/localizedStrings.js: Updated.
+        * UserInterface/Models/Resource.js: Change reject to resolve.
+        * UserInterface/Models/Script.js:
+        (WebInspector.Script.prototype.requestContentFromBackend): Proper use of Error object.
+        * UserInterface/Models/SourceCode.js: Use correct inheritance style.
+        * UserInterface/Views/ResourceContentView.js:
+        (WebInspector.ResourceContentView.prototype._contentAvailable): Handle error now that promise resolves.
+        (WebInspector.ResourceContentView.prototype._contentError): Remove incorrect use of UIString.
+        * UserInterface/Views/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor.prototype._contentAvailable): Handle error now that promise resolves.
+
+2015-01-22  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: Expected gutter highlight when selecting console input line, just like output line
+        https://bugs.webkit.org/show_bug.cgi?id=140696
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Views/LogContentView.css:
+
+2015-01-21  Saam Barati  <saambarati1@gmail.com>
+
+        Web Inspector: Change Annotator's isActive getter into an isActive() function.
+        https://bugs.webkit.org/show_bug.cgi?id=140729
+
+        Reviewed by Timothy Hatcher.
+
+        This patch also makes the child classes of Annotator use
+        the function instead of accessing the property directly.
+
+        * UserInterface/Controllers/Annotator.js:
+        (WebInspector.Annotator.prototype.isActive):
+        (WebInspector.Annotator.prototype.get isActive): Deleted.
+        * UserInterface/Controllers/BasicBlockAnnotator.js:
+        (WebInspector.BasicBlockAnnotator.prototype.insertAnnotations):
+        * UserInterface/Controllers/TypeTokenAnnotator.js:
+        (WebInspector.TypeTokenAnnotator.prototype.toggleTypeAnnotations):
+        * UserInterface/Views/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor.prototype.toggleTypeAnnotations):
+        (WebInspector.SourceCodeTextEditor.prototype.prettyPrint):
+        (WebInspector.SourceCodeTextEditor.prototype._debuggerDidPause):
+        (WebInspector.SourceCodeTextEditor.prototype._debuggerDidResume):
+        (WebInspector.SourceCodeTextEditor.prototype._updateTokenTrackingControllerState):
+
+2015-01-21  Saam Barati  <saambarati1@gmail.com>
+
+        Web Inspector: Don't allow the BasicBlockAnnotator to highlight a section if it's only a closing brace
+        https://bugs.webkit.org/show_bug.cgi?id=140727
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Controllers/BasicBlockAnnotator.js:
+        (WebInspector.BasicBlockAnnotator.prototype.set _highlightTextForBasicBlock):
+        (WebInspector.BasicBlockAnnotator.prototype._isTextRangeOnlyClosingBrace):
+        BasicBlockAnnotator tries to no longer highlight a basic block if it is only
+        whitespace and a closing brace. These ranges are often after statements
+        that make these basic blocks unreachable, such as a return/break/continue
+        statement occurring inside a if/else/while/for block. This check won't
+        match every highlighted empty closing brace, but catches most of them 
+        because it only does intra block analysis instead of inter block analysis.
+
+2015-01-20  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Use spread operator in a few places
+        https://bugs.webkit.org/show_bug.cgi?id=140699
+
+        Reviewed by Geoffrey Garen.
+
+        * UserInterface/Controllers/ProbeManager.js:
+        (WebInspector.ProbeManager.prototype.get probeSets):
+        Simplify by using the spread operator.
+
+        * UserInterface/Models/TimelineRecording.js:
+        This actually fixes an issue. The one place this was used was expecting
+        an array and called ".length" on the result. However, the iterator being
+        returned does not have a ".length" property so it was always undefined.
+
+2015-01-20  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Expanding event objects in console shows undefined for most values, it should have real values
+        https://bugs.webkit.org/show_bug.cgi?id=137306
+
+        Reviewed by Timothy Hatcher.
+
+        When first expanding an object, show all the object's own properties and any
+        getter properties that may be on its prototype chain. Now, we only fetch
+        own properties, for __proto__ properties.
+
+        * UserInterface/Protocol/RemoteObject.js:
+        (WebInspector.RemoteObject.prototype.getOwnProperties):
+        (WebInspector.RemoteObject.prototype.getOwnAndGetterProperties):
+        (WebInspector.RemoteObject.prototype.getAllProperties):
+        (WebInspector.RemoteObject.prototype.get hasChildren): Deleted.
+        * UserInterface/Views/ObjectPropertiesSection.js:
+        (WebInspector.ObjectPropertiesSection):
+        (WebInspector.ObjectPropertiesSection.prototype.update):
+        (WebInspector.ObjectPropertyTreeElement.prototype.onpopulate):
+
+2015-01-20  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Should show dynamic specificity values
+        https://bugs.webkit.org/show_bug.cgi?id=140647
+
+        Reviewed by Benjamin Poulain.
+
+        For dynamic selectors, provide text in the tooltip describing that the
+        specificity is dynamic and may change, and pointing out the element
+        the current value was calculated against.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        * UserInterface/Models/CSSSelector.js:
+        (WebInspector.CSSSelector):
+        (WebInspector.CSSSelector.prototype.get specificity):
+        (WebInspector.CSSSelector.prototype.get dynamic):
+        * UserInterface/Models/DOMNodeStyles.js:
+        (WebInspector.DOMNodeStyles.prototype._parseSelectorListPayload.return):
+        (WebInspector.DOMNodeStyles.prototype._parseSelectorListPayload):
+        * UserInterface/Views/CSSStyleDeclarationSection.js:
+        (WebInspector.CSSStyleDeclarationSection.prototype.refresh.appendSelector):
+
+2015-01-19  Saam Barati  <saambarati1@gmail.com>
+
+        Web Inspector: Provide a front end for JSC's Control Flow Profiler
+        https://bugs.webkit.org/show_bug.cgi?id=138454
+
+        Reviewed by Timothy Hatcher.
+
+        This patch creates a user interface for JSC's control flow profiler.
+        The Web Inspector gets basic block ranges from JSC, and displays
+        basic blocks that have not executed as having a gray background.
+        
+        BasicBlockAnnotator is the class responsible for this UI logic.
+        It also does a few nifty things when presenting a UI for this gray
+        background color: if an entire line of code is within the basic 
+        block's boundary, the annotator will not just highlight the background 
+        behind the text, but the background of the entire line itself. This
+        provides a nicer experience when glancing through large JavaScript files.
+
+        This patch also adds some necessary wrapper methods inside TextEditor
+        for accessing CodeMirror's text highlighting functionality. It also
+        creates a way for TextEditor and SourceCodeTextEditor to listen
+        for focus events inside CodeMirror.
+
+        * UserInterface/Controllers/AnnotatorManager.js: Removed.
+        * UserInterface/Controllers/BasicBlockAnnotator.js: Added.
+        (WebInspector.BasicBlockAnnotator):
+        (WebInspector.BasicBlockAnnotator.prototype.clearAnnotations):
+        (WebInspector.BasicBlockAnnotator.prototype.insertAnnotations):
+        (WebInspector.BasicBlockAnnotator.prototype._annotateBasicBlockExecutionRanges.):
+        (WebInspector.BasicBlockAnnotator.prototype._annotateBasicBlockExecutionRanges):
+        (WebInspector.BasicBlockAnnotator.prototype.set _highlightTextForBasicBlock):
+        (WebInspector.BasicBlockAnnotator.prototype._isTextRangeOnlyWhitespace):
+        (WebInspector.BasicBlockAnnotator.prototype._canGrayOutEntireLine):
+        (WebInspector.BasicBlockAnnotator.prototype._grayOutLine):
+        (WebInspector.BasicBlockAnnotator.prototype._clearRangeForBasicBlockMarker.get marker):
+        (WebInspector.BasicBlockAnnotator.prototype._clearRangeForBasicBlockMarker):
+        * UserInterface/Main.html:
+        * UserInterface/Views/SourceCodeTextEditor.css:
+        (.basic-block-has-not-executed):
+        (.basic-block-has-not-executed-prepend::before):
+        * UserInterface/Views/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor):
+        (WebInspector.SourceCodeTextEditor.prototype.shown):
+        (WebInspector.SourceCodeTextEditor.prototype.hidden):
+        (WebInspector.SourceCodeTextEditor.prototype.canShowTypeAnnotations):
+        (WebInspector.SourceCodeTextEditor.prototype.contentDidChange):
+        (WebInspector.SourceCodeTextEditor.prototype.gainedFocus):
+        (WebInspector.SourceCodeTextEditor.prototype.lostFocus):
+        (WebInspector.SourceCodeTextEditor.prototype.toggleTypeAnnotations):
+        (WebInspector.SourceCodeTextEditor.prototype.prettyPrint):
+        (WebInspector.SourceCodeTextEditor.prototype._populateWithContent):
+        (WebInspector.SourceCodeTextEditor.prototype._debuggerDidPause):
+        (WebInspector.SourceCodeTextEditor.prototype._debuggerDidResume):
+        (WebInspector.SourceCodeTextEditor.prototype._updateTokenTrackingControllerState):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenAnnotator):
+        (WebInspector.SourceCodeTextEditor.prototype._makeBasicBlockAnnotator):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenScrollEventHandler.scrollHandler):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenScrollEventHandler):
+        * UserInterface/Views/TextEditor.js:
+        (WebInspector.TextEditor):
+        (WebInspector.TextEditor.prototype.getTextInRange):
+        (WebInspector.TextEditor.prototype.addStyleToTextRange):
+        (WebInspector.TextEditor.prototype.gainedFocus):
+        (WebInspector.TextEditor.prototype.lostFocus):
+
+2015-01-16  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: Make message selection in the console more readable
+        https://bugs.webkit.org/show_bug.cgi?id=140385
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Views/LogContentView.css:
+        (.console-item.selected):
+        (.console-messages:focus .console-item.selected):
+        (.console-item.selected .console-message::after):
+        (.console-messages:focus .console-item.selected .console-message::after):
+        (.console-messages:focus .console-item.selected .go-to-link):
+        * UserInterface/Views/Main.css:
+        (.go-to-link):
+        !important statements seem to be unnecessary, remove them.
+
+2015-01-16  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Remove unused WebInspector.LocalJSONObject
+        https://bugs.webkit.org/show_bug.cgi?id=140570
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Protocol/RemoteObject.js:
+        (WebInspector.RemoteObject.fromLocalObject): Deleted.
+        (WebInspector.LocalJSONObject): Deleted.
+        (WebInspector.LocalJSONObject.prototype.get description.switch.case.string_appeared_here): Deleted.
+        (WebInspector.LocalJSONObject.prototype.get description.switch.default): Deleted.
+        (WebInspector.LocalJSONObject.prototype.get description): Deleted.
+        (WebInspector.LocalJSONObject.prototype._concatenate): Deleted.
+        (WebInspector.LocalJSONObject.prototype.get type): Deleted.
+        (WebInspector.LocalJSONObject.prototype.get subtype): Deleted.
+        (WebInspector.LocalJSONObject.prototype.get hasChildren): Deleted.
+        (WebInspector.LocalJSONObject.prototype.getOwnProperties): Deleted.
+        (WebInspector.LocalJSONObject.prototype.getAllProperties): Deleted.
+        (WebInspector.LocalJSONObject.prototype._children.buildProperty): Deleted.
+        (WebInspector.LocalJSONObject.prototype._children): Deleted.
+        (WebInspector.LocalJSONObject.prototype.isError): Deleted.
+
+2015-01-15  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Uncaught exceptions, attempting to dispatch unimplemented Network WebSocket methods
+        https://bugs.webkit.org/show_bug.cgi?id=140532
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Protocol/NetworkObserver.js:
+        (WebInspector.NetworkObserver.prototype.webSocketFrameReceived):
+        (WebInspector.NetworkObserver.prototype.webSocketFrameError):
+        (WebInspector.NetworkObserver.prototype.webSocketFrameSent):
+        Add stubs to prevent an exception when trying to dispatch the event.
+
+2015-01-15  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Reopening the inspector can selects a sub-frame instead of the Main Frame's DOM
+        https://bugs.webkit.org/show_bug.cgi?id=140513
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Models/Frame.js:
+        (WebInspector.Frame.prototype.saveIdentityToCookie):
+        Specifically identify the main frame, so that any sub-frames with the same
+        URL, don't get choosen over the main frame when restoring state from cookie.
+
+2015-01-15  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: selecting Paint timeline records from sidebar does not trigger preview of paint quad
+        https://bugs.webkit.org/show_bug.cgi?id=139151
+
+        Reviewed by Brian Burg.
+
+        * UserInterface/Views/LayoutTimelineDataGrid.js:
+        (WebInspector.LayoutTimelineDataGrid):
+        (WebInspector.LayoutTimelineDataGrid.prototype.callFramePopoverAnchorElement):
+        (WebInspector.LayoutTimelineDataGrid.prototype.reset): Deleted.
+        (WebInspector.LayoutTimelineDataGrid.prototype.hidden): Deleted.
+        (WebInspector.LayoutTimelineDataGrid.prototype._layoutDataGridSelectedNodeChanged): Deleted.
+        (WebInspector.LayoutTimelineDataGrid.prototype._hideHighlightIfNeeded): Deleted.
+        Move the node highlight from the datagrid to the timeline view because
+        we want this to happen on both the Navigation sidebar and the datagrid.
+
+        * UserInterface/Views/LayoutTimelineView.js:
+        (WebInspector.LayoutTimelineView.prototype.shown):
+        (WebInspector.LayoutTimelineView.prototype.hidden):
+        (WebInspector.LayoutTimelineView.prototype.filterDidChange):
+        (WebInspector.LayoutTimelineView.prototype.reset):
+        (WebInspector.LayoutTimelineView.prototype._treeElementDeselected):
+        (WebInspector.LayoutTimelineView.prototype._treeElementSelected):
+        Update the highlight for major view updates.
+
+        (WebInspector.LayoutTimelineView.prototype._updateHighlight):
+        (WebInspector.LayoutTimelineView.prototype._showHighlightForRecord):
+        (WebInspector.LayoutTimelineView.prototype._hideHighlightIfNeeded):
+        (WebInspector.LayoutTimelineView.prototype._hoveredOrSelectedRecord):
+        Show a highlight for what we are hovering, or what is selected.
+        Note the selected node may not be visible due to filtering.
+
+        (WebInspector.LayoutTimelineView.prototype._mouseOverDataGrid):
+        (WebInspector.LayoutTimelineView.prototype._mouseLeaveDataGrid):
+        (WebInspector.LayoutTimelineView.prototype._mouseOverTreeOutline):
+        (WebInspector.LayoutTimelineView.prototype._mouseLeaveTreeOutline):
+        Update hovered information mousing over the datagrid and tree outline.
+
+        * UserInterface/Views/TimelineContentView.js:
+        (WebInspector.TimelineContentView.prototype.filterDidChange):
+        * UserInterface/Views/TimelineSidebarPanel.js:
+        (WebInspector.TimelineSidebarPanel.prototype.updateFilter):
+        * UserInterface/Views/TimelineView.js:
+        (WebInspector.TimelineView.prototype.filterDidChange):
+        Include a "filterDidChange" TimelineView method that gets called after
+        updateFilter (things like the filter bar or timeline range changes).
+
+        * UserInterface/Views/TreeOutline.js:
+        (TreeOutline.prototype.treeElementFromNode):
+        (TreeOutline.prototype.treeElementFromPoint):
+        Provide a helper to get a tree element from an event target.
+
+2015-01-13  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: TextEditor doesn't update when resizing console, white space instead of content
+        https://bugs.webkit.org/show_bug.cgi?id=140240
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Base/Main.js:
+        (WebInspector._consoleResizerMouseDown.dockedResizerDrag):
+        Dispatch the event that signals the console has changed size.
+
+2015-01-13  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: I do not expect to see the same rule multiple times in styles sidebar
+        https://bugs.webkit.org/show_bug.cgi?id=138185
+
+        Reviewed by Timothy Hatcher.
+
+        In the styles sidebar, don't show a duplicate, lesser-specificity rule even
+        if it matches the selected element multiple times with different selectors
+        in the list.
+
+        * UserInterface/Models/CSSRule.js:
+        (WebInspector.CSSRule.prototype.isEqualTo):
+        CSSRule identifiers are objects.
+
+        * UserInterface/Views/RulesStyleDetailsPanel.js:
+        (WebInspector.RulesStyleDetailsPanel.prototype.refresh):
+        Remove duplicates from the ordered list of style declarations.
+
+2015-01-12  Jonathan Wells  <jonowells@apple.com>
+
+        Web Inspector: Timeline: when Network Requests view is selected, in progress requests are absent.
+        https://bugs.webkit.org/show_bug.cgi?id=140090
+
+        Reviewed by Timothy Hatcher.
+
+        TimelineContentView#_updateTimes() changed to call WebInspector.timelineSidebarPanel.updateFilter() in addition
+        to updating the layout of the current timeline view. TimelineSidebarPanel.updateFilter() now responsible for
+        updating filtered resources in a TimelineView.
+
+        * UserInterface/Views/NavigationSidebarPanel.js:
+        (WebInspector.NavigationSidebarPanel.prototype._updateFilter):
+        Now handles updating the UI associated with filtering of navigation sidebar tree elements.
+
+        * UserInterface/Views/OverviewTimelineView.js:
+        (WebInspector.OverviewTimelineView.prototype.updateLayout):
+        No longer handles updating other UI along with the navigation sidebar tree elements. That is now handled by
+        WebInspector.TimelineView.prototype.filterUpdated.
+        (WebInspector.OverviewTimelineView.prototype._compareTreeElementsByDetails): Drive-by fix. Missing vars.
+
+        * UserInterface/Views/TimelineContentView.js:
+        (WebInspector.TimelineContentView.prototype._updateTimes): Add call to updateFilter().
+
+        * UserInterface/Views/TimelineView.js:
+        (WebInspector.TimelineView.prototype.filterUpdated):
+        Function added to dispatch a SelectionPathComponentsDidChange event.
+
+2015-01-09  Enrica Casucci  <enrica@apple.com>
+
+        [iOS] Support additional text styles.
+        https://bugs.webkit.org/show_bug.cgi?id=140310
+        rdar://problem/18568864
+
+        Reviewed by Joseph Pecoraro.
+
+        Add support for three new text styles.
+
+        * UserInterface/Models/CSSKeywordCompletions.js:
+
+2015-01-09  Timothy Hatcher  <timothy@apple.com>
+
+        Web Inspector: REGRESSION: Navigation sidebar can show blank next to the Console view
+        https://bugs.webkit.org/show_bug.cgi?id=140291
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/Base/Main.js:
+        (WebInspector.contentLoaded): Don't restore collapsed false if selectedSidebarPanel is null.
+        (WebInspector._sidebarCollapsedStateDidChange): Support a _ignoreNavigationSidebarPanelCollapsedEvent flag
+        to avoid setting _navigationSidebarCollapsedSetting.
+        (WebInspector._navigationSidebarPanelSelected): Force collapsed if selectedSidebarPanel is null.
+        (WebInspector._contentBrowserCurrentContentViewDidChange): Set _ignoreNavigationSidebarPanelCollapsedEvent
+        when forcing the collapsed state to avoid setting _navigationSidebarCollapsedSetting and calling
+        _updateContentViewForCurrentNavigationSidebar.
+
+2015-01-08  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: REGRESSION Showing debugger sidebar shouldn't change selected JS file
+        https://bugs.webkit.org/show_bug.cgi?id=139526
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Base/Main.js:
+        (WebInspector._revealAndSelectRepresentedObjectInNavigationSidebar):
+        When switching to Debugger, show last selected JS or HTML resource.
+
+        (WebInspector.showSplitConsole):
+        (WebInspector.showFullHeightConsole):
+        (WebInspector.toggleConsoleView):
+        (WebInspector._sidebarCollapsedStateDidChange):
+        (WebInspector._updateContentViewForCurrentNavigationSidebar):
+        (WebInspector._navigationSidebarPanelSelected):
+        (WebInspector._contentBrowserCurrentContentViewDidChange):
+        (WebInspector._updateNavigationSidebarForCurrentContentView): Deleted.
+        * UserInterface/Views/ApplicationCacheFrameContentView.js:
+        (WebInspector.ApplicationCacheFrameContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/CookieStorageContentView.js:
+        (WebInspector.CookieStorageContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/DOMStorageContentView.js:
+        (WebInspector.DOMStorageContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/DOMTreeContentView.js:
+        (WebInspector.DOMTreeContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/DatabaseContentView.js:
+        (WebInspector.DatabaseContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/DatabaseTableContentView.js:
+        (WebInspector.DatabaseTableContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/FontResourceContentView.js:
+        (WebInspector.FontResourceContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/FrameDOMTreeContentView.js:
+        (WebInspector.FrameDOMTreeContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/LogContentView.js:
+        (WebInspector.LogContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/ResourceClusterContentView.js:
+        (WebInspector.ResourceClusterContentView.prototype.get allowedNavigationSidebarPanels):
+        * UserInterface/Views/ResourceSidebarPanel.js:
+        (WebInspector.ResourceSidebarPanel.prototype.showDefaultContentView):
+        (WebInspector.ResourceSidebarPanel.prototype.showMainFrame):
+        * UserInterface/Views/Sidebar.js:
+        (WebInspector.Sidebar.prototype.removeSidebarPanel):
+        * UserInterface/Views/TimelineContentView.js:
+        (WebInspector.TimelineContentView.prototype.get allowedNavigationSidebarPanels):
+
+2015-01-08  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Phantom breakpoint appears on empty line after reload of minified file with a breakpoint
+        https://bugs.webkit.org/show_bug.cgi?id=140276
+
+        Reviewed by Timothy Hatcher.
+
+        Styles being set on lines (e.g. breakpoint styles) before content loaded can
+        carry forward with the empty line. It is safe for us to just remove all
+        the styles from the intial empty line before we load the initial content.
+
+        * UserInterface/Views/TextEditor.js:
+        (WebInspector.TextEditor.prototype.set string.update):
+        (WebInspector.TextEditor.prototype.set string):
+
+2015-01-08  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Pause Reason Improvements (Breakpoint, Debugger Statement, Pause on Next Statement)
+        https://bugs.webkit.org/show_bug.cgi?id=138991
+
+        Reviewed by Timothy Hatcher.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        New UI strings for Pause Reasons.
+
+        * UserInterface/Controllers/DebuggerManager.js:
+        (WebInspector.DebuggerManager.prototype.breakpointForIdentifier):
+        Provide a way to get the breakpoint with an identifier.
+
+        * UserInterface/Images/PausedBreakpoint.svg: Added.
+        * UserInterface/Images/gtk/PausedBreakpoint.svg: Added.
+        Copy PseudoElement.svg icon and give it a new name.
+
+        * UserInterface/Views/BreakpointTreeElement.css:
+        (.breakpoint-paused-icon .icon):
+        New icon for a breakpoint causing a pause.
+
+        * UserInterface/Views/BreakpointTreeElement.js:
+        (WebInspector.BreakpointTreeElement.prototype.removeStatusImage):
+        (WebInspector.BreakpointTreeElement.prototype._updateStatus):
+        Give API to remove the breakpoint status icon from a BreakpointTreeElement.
+
+        * UserInterface/Views/DebuggerSidebarPanel.js:
+        (WebInspector.DebuggerSidebarPanel):
+        (WebInspector.DebuggerSidebarPanel.prototype.get hasSelectedElement):
+        (WebInspector.DebuggerSidebarPanel.prototype.deselectBreakpointContentTreeElements):
+        (WebInspector.DebuggerSidebarPanel.prototype.deselectPauseReasonContentTreeElements):
+        (WebInspector.DebuggerSidebarPanel.prototype._treeElementSelected):
+        Give DebuggerSidebarPanel an optional pause reason tree outline. When available
+        include it in the pattern of ensuring a single exclusive selection.
+
+        (WebInspector.DebuggerSidebarPanel.prototype._breakpointRemoved):
+        When a breakpoint is removed, check if we should update the pause reason tree outline.
+
+        (WebInspector.DebuggerSidebarPanel.prototype._updatePauseReason):
+        (WebInspector.DebuggerSidebarPanel.prototype._updatePauseReasonSection):
+        Update Pause Reason section contents depending on the reason.
+
+        (WebInspector.DebuggerSidebarPanel.prototype._updatePauseReasonGotoArrow):
+        Always try to include a goto arrow to jump to the original pause location
+        if it is available at the time of pausing.
+
+2015-01-08  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Expected UserAgent styles to be crossed-out if overridden
+        https://bugs.webkit.org/show_bug.cgi?id=140154
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Models/DOMNodeStyles.js:
+        (WebInspector.DOMNodeStyles.prototype._parseStylePropertyPayload):
+        Add a comment about anonymous styles. The getter is no longer used, and it is not
+        clear if we really care about this state, or if "anonymous" is an appropriate name.
+
+        (WebInspector.DOMNodeStyles.prototype._markOverriddenProperties):
+        Allow browser styles (user agent / html attributes) to be overridden.
+
+        (WebInspector.DOMNodeStyles.prototype._parseStyleDeclarationPayload):
+        When refreshing styles after changes, the Style object backing HTML attributes
+        was being completely replaced. Allow it to be remembered by a unique key.
+
+2015-01-07  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Do not create rulesMap entries for rules without identifiers
+        https://bugs.webkit.org/show_bug.cgi?id=140237
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Models/DOMNodeStyles.js:
+        (WebInspector.DOMNodeStyles.prototype._parseRulePayload):
+        We were accidentally converting a null into a string with a loose string
+        concatenation. Only do this if the mapKey is not-null.
+
+2015-01-07  Saam Barati  <saambarati1@gmail.com>
+
+        Web Inspector: Abstract common functions from TypeTokenAnnotator into a parent class and introduce an AnnotatorManager
+        https://bugs.webkit.org/show_bug.cgi?id=139426
+
+        Reviewed by Timothy Hatcher.
+
+        This patch creates a parent class, Annotator, that TypeTokenAnnotator
+        inherits from. Annotator defines a common set of functionality
+        that a text editor annotator can use to mark up UI. This 
+        is in preparation other classes that will inherit from Annotator.
+        
+        This patch also introduces AnnotatorManager which controls a
+        set of Annotators and provides a single interface for
+        controlling them.
+
+        * UserInterface/Controllers/Annotator.js: Added.
+        (WebInspector.Annotator):
+        (WebInspector.Annotator.prototype.get sourceCodeTextEditor):
+        (WebInspector.Annotator.prototype.get isActive):
+        (WebInspector.Annotator.prototype.pause):
+        (WebInspector.Annotator.prototype.resume):
+        (WebInspector.Annotator.prototype.refresh):
+        (WebInspector.Annotator.prototype.reset):
+        (WebInspector.Annotator.prototype.clear):
+        (WebInspector.Annotator.prototype.insertAnnotations):
+        (WebInspector.Annotator.prototype.clearAnnotations):
+        (WebInspector.Annotator.prototype._clearTimeoutIfNeeded):
+        * UserInterface/Controllers/AnnotatorManager.js: Added.
+        (WebInspector.AnnotatorManager):
+        (WebInspector.AnnotatorManager.prototype.addAnnotator):
+        (WebInspector.AnnotatorManager.prototype.isAnnotatorActive):
+        (WebInspector.AnnotatorManager.prototype.pauseAll):
+        (WebInspector.AnnotatorManager.prototype.resumeAll):
+        (WebInspector.AnnotatorManager.prototype.refreshAllIfActive):
+        (WebInspector.AnnotatorManager.prototype.resetAllIfActive):
+        (WebInspector.AnnotatorManager.prototype.clearAll):
+        (WebInspector.AnnotatorManager.prototype.removeAllAnnotators):
+        (WebInspector.AnnotatorManager.prototype._getAnnotators):
+        * UserInterface/Controllers/TypeTokenAnnotator.js:
+        (WebInspector.TypeTokenAnnotator):
+        (WebInspector.TypeTokenAnnotator.prototype.insertAnnotations.):
+        (WebInspector.TypeTokenAnnotator.prototype.clearAnnotations):
+        (WebInspector.TypeTokenAnnotator.prototype._insertToken):
+        (WebInspector.TypeTokenAnnotator.prototype.get isActive): Deleted.
+        (WebInspector.TypeTokenAnnotator.prototype.get sourceCodeTextEditor): Deleted.
+        (WebInspector.TypeTokenAnnotator.prototype.pause): Deleted.
+        (WebInspector.TypeTokenAnnotator.prototype.resume): Deleted.
+        (WebInspector.TypeTokenAnnotator.prototype.refresh): Deleted.
+        (WebInspector.TypeTokenAnnotator.prototype.reset): Deleted.
+        (WebInspector.TypeTokenAnnotator.prototype._insertAnnotations.): Deleted.
+        (WebInspector.TypeTokenAnnotator.prototype._clearTimeoutIfNeeded): Deleted.
+        * UserInterface/Main.html:
+        * UserInterface/Views/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor):
+        (WebInspector.SourceCodeTextEditor.prototype.shown):
+        (WebInspector.SourceCodeTextEditor.prototype.hidden):
+        (WebInspector.SourceCodeTextEditor.prototype.canShowTypeAnnotations):
+        (WebInspector.SourceCodeTextEditor.prototype.contentDidChange):
+        (WebInspector.SourceCodeTextEditor.prototype.toggleTypeAnnotations):
+        (WebInspector.SourceCodeTextEditor.prototype.prettyPrint):
+        (WebInspector.SourceCodeTextEditor.prototype._debuggerDidPause):
+        (WebInspector.SourceCodeTextEditor.prototype._debuggerDidResume):
+        (WebInspector.SourceCodeTextEditor.prototype._updateTokenTrackingControllerState):
+        (WebInspector.SourceCodeTextEditor.prototype._getAssociatedScript):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenAnnotator):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenScrollEventHandler.scrollHandler):
+        (WebInspector.SourceCodeTextEditor.prototype._makeTypeTokenScrollEventHandler):
+
+2015-01-06  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Do not style implicit CSS properties in the Style Rules section
+        https://bugs.webkit.org/show_bug.cgi?id=140161
+
+        Reviewed by Timothy Hatcher.
+
+        Previously, implicit properties being transparent in the Rules section
+        was confusing and not useful. Lets simplify what transparency means:
+
+            - Rules:  transparency means a non-inheritable property in an inherited rule
+            - Computed: transparency means an implicit value
+
+        * UserInterface/Views/CSSStyleDeclarationTextEditor.css:
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.not-inherited):
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property:matches(.implicit, .not-inherited)): Deleted.
+
+2015-01-06  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Uncaught Exception when dismissing Go To Line dialog
+        https://bugs.webkit.org/show_bug.cgi?id=139663
+
+        Reviewed by Timothy Hatcher.
+
+        Calling removeChild would trigger the blur event handler and do a
+        nested call of dismiss(), re-entering and removing while in the middle
+        of removing. Avoid re-entrancy to avoid the exception.
+
+        * UserInterface/Views/GoToLineDialog.js:
+        (WebInspector.GoToLineDialog):
+        (WebInspector.GoToLineDialog.prototype.dismiss):
+
+2015-01-01  Darin Adler  <darin@apple.com>
+
+        We often misspell identifier as "identifer"
+        https://bugs.webkit.org/show_bug.cgi?id=140025
+
+        Reviewed by Michael Saboff.
+
+        * UserInterface/Base/Main.js:
+        (WebInspector._updateNavigationSidebarForCurrentContentView):
+        (WebInspector._contentBrowserCurrentContentViewDidChange):
+        Fix misspellings.
+
+2014-12-29  Jonathan Wells  <jonowells@apple.com>
+
+        Web Inspector: SourceCode.requestContent should return a promise
+        https://bugs.webkit.org/show_bug.cgi?id=135777
+
+        Reviewed by Brian Burg.
+
+        Change SourceCode.js to request content from the backend using Promises. Change Resource.js to use this new
+        approach when determining whether a resource load has finished. Change all calls to the older
+        SourceCode#requestContentFromBackendIfNeeded to simply use requestContent and use a catch function
+        if a content request error needs to be handled. Fix a bug where the appropriate error message for an
+        invalid resource wasn't showing in the resource content view.
+
+        * UserInterface/Controllers/AnalyzerManager.js:
+        (set WebInspector.AnalyzerManager.prototype.getAnalyzerMessagesForSourceCode.):
+        (set WebInspector.AnalyzerManager.prototype.getAnalyzerMessagesForSourceCode):
+        * UserInterface/Controllers/CSSStyleManager.js:
+        (WebInspector.CSSStyleManager.prototype._updateResourceContent.fetchedStyleSheetContent):
+        (WebInspector.CSSStyleManager.prototype._updateResourceContent.styleSheetReady):
+        * UserInterface/Models/CSSStyleSheet.js:
+        (WebInspector.CSSStyleSheet.prototype.requestContentFromBackend):
+        (WebInspector.CSSStyleSheet.prototype.canRequestContentFromBackend): Deleted.
+        * UserInterface/Models/DOMNodeStyles.js:
+        (WebInspector.DOMNodeStyles.prototype.changeStyleText):
+        * UserInterface/Models/Resource.js:
+        (WebInspector.Resource.prototype.canRequestContent):
+        (WebInspector.Resource.prototype.requestContentFromBackend):
+        (WebInspector.Resource.prototype.markAsFinished):
+        (WebInspector.Resource.prototype.markAsFailed):
+        (WebInspector.Resource.prototype.getImageSize):
+        (WebInspector.Resource.prototype.canRequestContentFromBackend): Deleted.
+        * UserInterface/Models/Script.js:
+        (WebInspector.Script.prototype.requestContentFromBackend):
+        (WebInspector.Script.prototype.requestScriptSyntaxTree.catch):
+        (WebInspector.Script.prototype.canRequestContentFromBackend): Deleted.
+        * UserInterface/Models/SourceCode.js:
+        (WebInspector.SourceCode):
+        (WebInspector.SourceCode.prototype.requestContent):
+        (WebInspector.SourceCode.prototype.requestContentFromBackend):
+        (WebInspector.SourceCode.prototype._processContent):
+        (WebInspector.SourceCode.prototype.canRequestContentFromBackend): Deleted.
+        (WebInspector.SourceCode.prototype.requestContentFromBackendIfNeeded): Deleted.
+        (WebInspector.SourceCode.prototype.servicePendingContentRequests): Deleted.
+        * UserInterface/Models/SourceMapResource.js:
+        (WebInspector.SourceMapResource):
+        (WebInspector.SourceMapResource.prototype.requestContentFromBackend.sourceMapResourceLoadError):
+        (WebInspector.SourceMapResource.prototype.requestContentFromBackend):
+        (WebInspector.SourceMapResource.prototype.canRequestContentFromBackend): Deleted.
+        (WebInspector.SourceMapResource.prototype.requestContentFromBackend.sourceMapResourceLoaded): Deleted.
+        * UserInterface/Views/ResourceContentView.js:
+        (WebInspector.ResourceContentView):
+        (WebInspector.ResourceContentView.prototype._contentAvailable):
+        (WebInspector.ResourceContentView.prototype._contentError):
+        * UserInterface/Views/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor):
+        (WebInspector.SourceCodeTextEditor.prototype._contentAvailable):
+        (WebInspector.SourceCodeTextEditor.prototype._populateWithInlineScriptContent.scriptContentAvailable):
+        (WebInspector.SourceCodeTextEditor.prototype._populateWithInlineScriptContent):
+        (WebInspector.SourceCodeTextEditor.prototype._populateWithScriptContent):
+
+2014-12-26  Dan Bernstein  <mitz@apple.com>
+
+        <rdar://problem/19348208> REGRESSION (r177027): iOS builds use the wrong toolchain
+        https://bugs.webkit.org/show_bug.cgi?id=139950
+
+        Reviewed by David Kilzer.
+
+        * Configurations/Base.xcconfig: Only define TOOLCHAINS when building for OS X, doing so
+        in a manner that works with Xcode 5.1.1.
+
+2014-12-20  David Kilzer  <ddkilzer@apple.com>
+
+        Switch from using PLATFORM_NAME to SDK selectors in WebCore, WebInspectorUI, WebKit, WebKit2
+        <http://webkit.org/b/139463>
+
+        Reviewed by Mark Rowe.
+
+        * Configurations/Base.xcconfig:
+        - Only set TOOLCHAINS on OS X.
+        * Configurations/DebugRelease.xcconfig:
+        - Only set MACOSX_DEPLOYMENT_TARGET and SDKROOT on OS X.
+        * Configurations/Version.xcconfig:
+        - Set SYSTEM_VERSION_PREFIX separately for iOS and OS X.
+        * Configurations/WebInspectorUIFramework.xcconfig:
+        - Set NORMAL_PRODUCTION_FRAMEWORKS_DIR,
+          PRODUCTION_FRAMEWORKS_DIR and
+          JAVASCRIPTCORE_PRIVATE_HEADERS_DIR_Production by SDK.
+
+2014-12-19  Commit Queue  <commit-queue@webkit.org>
+
+        Unreviewed, rolling out r177574.
+        https://bugs.webkit.org/show_bug.cgi?id=139821
+
+        "Broke Production builds by installing
+        libWebCoreTestSupport.dylib in the wrong directory" (Requested
+        by ddkilzer on #webkit).
+
+        Reverted changeset:
+
+        "Switch from using PLATFORM_NAME to SDK selectors in WebCore,
+        WebInspectorUI, WebKit, WebKit2"
+        https://bugs.webkit.org/show_bug.cgi?id=139463
+        http://trac.webkit.org/changeset/177574
+
+2014-12-19  David Kilzer  <ddkilzer@apple.com>
+
+        Switch from using PLATFORM_NAME to SDK selectors in WebCore, WebInspectorUI, WebKit, WebKit2
+        <http://webkit.org/b/139463>
+
+        Reviewed by Mark Rowe.
+
+        * Configurations/Base.xcconfig:
+        - Only set TOOLCHAINS on OS X.
+        * Configurations/DebugRelease.xcconfig:
+        - Only set MACOSX_DEPLOYMENT_TARGET and SDKROOT on OS X.
+        * Configurations/Version.xcconfig:
+        - Set SYSTEM_VERSION_PREFIX separately for iOS and OS X.
+        * Configurations/WebInspectorUIFramework.xcconfig:
+        - Set NORMAL_PRODUCTION_FRAMEWORKS_DIR,
+          PRODUCTION_FRAMEWORKS_DIR and
+          JAVASCRIPTCORE_PRIVATE_HEADERS_DIR_Production by SDK.
+
+2014-12-16  Matt Baker  <mattbaker@apple.com>
+
+        Web Inspector: REGRESSION: Dragging undocked web inspector causes mouse to change from pointer to i-bar cursor over window title
+        https://bugs.webkit.org/show_bug.cgi?id=139720
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Base/Main.js:
+        Prevent default handling of the mouse event when clicking in the titlebar area. WebCore won't continue handling the event,
+        but docking buttons/context menu still function.
+
+2014-12-15  Nikita Vasilyev  <nvasilyev@apple.com>
+
+        Web Inspector: Clicking on the expand object arrow should always expand an object
+        https://bugs.webkit.org/show_bug.cgi?id=139382
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/Views/LogContentView.js:
+        (WebInspector.LogContentView):
+        (WebInspector.LogContentView.prototype._click): Deleted.
+        stopPropagation was preventing the object expansion from happening as expecting.
+
+2014-12-15  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: CSSStyleDeclarationTextEditor fails to update if computed properties changed from empty to non-empty
+        https://bugs.webkit.org/show_bug.cgi?id=139610
+
+        Reviewed by Timothy Hatcher.
+
+        The CSSStyleDeclarationTextEditor for Computed Style Properties always has
+        empty DOMNodeStyles text. However we would not reset contents if properties
+        changed and the actualy content was empty. So once empty, we could never
+        recover. In fact, we should always refresh for Computed Styles.
+
+        * UserInterface/Views/CSSStyleDeclarationTextEditor.js:
+        (WebInspector.CSSStyleDeclarationTextEditor.prototype._propertiesChanged):
+
+2014-12-08  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Hide Compositing Borders Button if backend returns an error that it is unsupported
+        https://bugs.webkit.org/show_bug.cgi?id=139307
+
+        Reviewed by Darin Adler.
+
+        * UserInterface/Views/DOMTreeContentView.js:
+        (WebInspector.DOMTreeContentView.prototype._updateCompositingBordersButtonToMatchPageSettings):
+
+2014-12-05  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Uncaught Exceptions when attempting to show Content Flow
+        https://bugs.webkit.org/show_bug.cgi?id=139276
+
+        Reviewed by Brian Burg.
+
+        * UserInterface/Views/ContentView.js:
+        (WebInspector.ContentView):
+        (WebInspector.ContentView.isViewable):
+        LegacyJavaScriptProfileObject no longer exists, these references should be removed.
+
+        * UserInterface/Views/FolderizedTreeElement.js:
+        (WebInspector.FolderizedTreeElement.prototype._insertChildTreeElement):
+        This sort function references "this" and needed to be bound.
+
+2014-12-04  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Network Timeline Filter Bar only has "All", missing Resource Type filters
+        https://bugs.webkit.org/show_bug.cgi?id=139268
+
+        Reviewed by Brian Burg.
+
+        * UserInterface/Views/TimelineDataGrid.js:
+        (WebInspector.TimelineDataGrid.createColumnScopeBar):
+        Users of createColumnScopeBar pass a Map object now instead of a dictionary.
+        Iterate over the map appropriately.
+
+2014-12-04  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: LayoutTests/inspector tests fail in Production builds due to missing test resources
+        https://bugs.webkit.org/show_bug.cgi?id=138898
+
+        Reviewed by Mark Rowe.
+
+        In Production builds, if FORCE_TOOL_INSTALL=YES is in the environment
+        we will copy all resources (for Tests) and still do the combine and
+        optimize phase for normal Production inspection resources.
+
+        * Scripts/copy-user-interface-resources.pl:
+
+2014-12-03  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Missing getter, clients never see DragToAdjustController is enabled
+        https://bugs.webkit.org/show_bug.cgi?id=139228
+
+        Reviewed by Simon Fraser.
+
+        * UserInterface/Controllers/DragToAdjustController.js:
+        (WebInspector.DragToAdjustController.prototype.get enabled):
+
+2014-12-02  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: CSS Minification breaks some selectors with colons
+        https://bugs.webkit.org/show_bug.cgi?id=139206
+
+        Reviewed by Simon Fraser.
+
+        Do not remove spaces preceeding colons, as they may change the semantics
+        of selectors with colon prefixes (e.g. "a :not(b)").
+
+        At the same time, we can strip spaces around "!" characters, for example
+        a space is not required before "!important" priority.
+
+        * Scripts/cssmin.py:
+        (cssminify):
+
+2014-12-01  Benjamin Poulain  <benjamin@webkit.org>
+
+        Web Inspector: add more :not() and :matches() awesomeness
+        https://bugs.webkit.org/show_bug.cgi?id=138997
+
+        Reviewed by Joseph Pecoraro.
+
+        Simplify the Inspector's CSS when possible.
+
+        * UserInterface/Views/DatabaseContentView.css:
+        (:matches(.database-user-query, .database-query-prompt, .database-query-result)::before):
+        (.database-user-query::before, .database-query-prompt::before, .database-query-result::before): Deleted.
+        * UserInterface/Views/GradientSlider.css:
+        (.gradient-slider-knob > :matches(img, div)):
+        (.gradient-slider-knob > div): Deleted.
+        * UserInterface/Views/HoverMenu.css:
+        (.hover-menu > svg > :matches(path, rect)):
+        (.hover-menu > svg > rect): Deleted.
+        * UserInterface/Views/LayerTreeDetailsSidebarPanel.css:
+        (.panel.details.layer-tree .name-column :matches(.pseudo-element, .reflection)):
+        (.panel.details.layer-tree tr.selected .name-column :matches(.pseudo-element, .reflection)):
+        (.panel.details.layer-tree .name-column .reflection): Deleted.
+        (.panel.details.layer-tree tr.selected .name-column .reflection): Deleted.
+        * UserInterface/Views/ProbeDetailsSidebarPanel.css:
+        (.details-section.probe-set .options > :matches(.probe-remove, .probe-clear-samples, .probe-add)):
+        (.details-section.probe-set .options > .probe-add): Deleted.
+        * UserInterface/Views/ResourceSidebarPanel.css:
+        (.sidebar > .panel.navigation.resource > :matches(.content, .empty-content-placeholder)):
+        (body.mac-platform.legacy .sidebar > .panel.navigation.resource > :matches(.content, .empty-content-placeholder)):
+        (.sidebar > .panel.navigation.resource > .empty-content-placeholder): Deleted.
+        (body.mac-platform.legacy .sidebar > .panel.navigation.resource > .empty-content-placeholder): Deleted.
+        * UserInterface/Views/ScopeBar.css:
+        (.scope-bar > li:matches(.selected, :active)):
+        (.scope-bar > li:active): Deleted.
+        * UserInterface/Views/SyntaxHighlightingDefaultTheme.css:
+        (.syntax-highlighted :matches(.css-comment, .javascript-comment, .html-comment)):
+        (.syntax-highlighted :matches(.css-keyword, .css-tag, .css-at-rule, .css-important, .javascript-keyword, .html-tag)):
+        (.syntax-highlighted :matches(.css-number, .javascript-number)):
+        (.syntax-highlighted :matches(.css-property, .css-selector, .javascript-ident)):
+        (.syntax-highlighted :matches(.css-string, .javascript-string, .javascript-regexp, .html-attribute-value)):
+        (.syntax-highlighted :matches(.html-doctype, .html-processing-instruction)):
+        (.syntax-highlighted .html-comment): Deleted.
+        (.syntax-highlighted .html-tag): Deleted.
+        (.syntax-highlighted .javascript-number): Deleted.
+        (.syntax-highlighted .javascript-ident): Deleted.
+        (.syntax-highlighted .html-attribute-value): Deleted.
+        (.syntax-highlighted .html-processing-instruction): Deleted.
+        It looks like ".cm-tag.cm-bracket" was there only to override the rule below.
+        From basic testing, it looks like "cm-tag" and "cm-bracket" always appear together. I removed the "cm-bracket" rule
+        from the second rule, and simplified the first rule.
+
+        * UserInterface/Views/TimelineSidebarPanel.css:
+        (body.mac-platform.legacy .sidebar > .panel.navigation.timeline > :matches(.content, .empty-content-placeholder)):
+        (body.mac-platform.legacy .sidebar > .panel.navigation.timeline > .empty-content-placeholder): Deleted.
+        * UserInterface/Views/Toolbar.css:
+        (body.mac-platform:not(.legacy, .docked) .toolbar):
+        (body.mac-platform:not(.legacy, .docked) .toolbar.icon-and-label-vertical):
+        (body.mac-platform:not(.legacy, .docked) .toolbar.icon-and-label-vertical.small-size):
+        (body.mac-platform:not(.legacy, .docked) .toolbar:matches(.icon-and-label-horizontal, .icon-only)):
+        (body.mac-platform:not(.legacy, .docked) .toolbar:matches(.icon-and-label-horizontal.small-size, .icon-only.small-size, .label-only)):
+        (.toolbar:matches(.icon-and-label-horizontal.small-size, .icon-only.small-size, .label-only) .control-section):
+        (body.mac-platform:not(.legacy):not(.docked) .toolbar): Deleted.
+        (body.mac-platform:not(.legacy):not(.docked) .toolbar.icon-and-label-vertical): Deleted.
+        (body.mac-platform:not(.legacy):not(.docked) .toolbar.icon-and-label-vertical.small-size): Deleted.
+        (body.mac-platform:not(.legacy):not(.docked) .toolbar.icon-only): Deleted.
+        (body.mac-platform:not(.legacy):not(.docked) .toolbar.label-only): Deleted.
+        (.toolbar.label-only .control-section): Deleted.
+
+2014-11-27  Andres Gomez  <agomez@igalia.com>
+
+        Web Inspector: Update NavigationItemProbes icon for the GTK+ port
+        https://bugs.webkit.org/show_bug.cgi?id=139074
+
+        Reviewed by Carlos Garcia Campos.
+
+        NavigationItemProbes was updated for the Mac port and we are now
+        having a similar ideogram in GTK+.
+
+        * UserInterface/Images/gtk/NavigationItemProbes.svg: Updated.
+
+2014-11-21  Benjamin Poulain  <bpoulain@apple.com>
+
+        Start using the new :not() and :matches() in the Web Inspector
+        https://bugs.webkit.org/show_bug.cgi?id=138978
+
+        Reviewed by Joseph Pecoraro.
+
+        Start simpifying some definitions by using modern CSS.
+
+        * UserInterface/Views/CSSStyleDeclarationSection.css:
+        (body.mac-platform.legacy .style-declaration-section.last-in-group + .style-declaration-section:matches(.last-in-group, :last-child)):
+        (.style-declaration-section:matches(.locked, .selector-locked) > .header > .selector):
+        (body.mac-platform.legacy .style-declaration-section.last-in-group + .style-declaration-section:last-child): Deleted.
+        (.style-declaration-section.selector-locked > .header > .selector): Deleted.
+        * UserInterface/Views/CSSStyleDeclarationTextEditor.css:
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property:matches(.disabled, .invalid, .other-vendor, .not-inherited, .overridden)):
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property:matches(.implicit, .not-inherited)):
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line .css-style-declaration-property:matches(.disabled, .other-vendor, .not-inherited, .overridden)):
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.overridden): Deleted.
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.not-inherited): Deleted.
+        (.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line .css-style-declaration-property.overridden): Deleted.
+        * UserInterface/Views/ControlToolbarItem.css:
+        (.toolbar:matches(.icon-and-label-horizontal, .toolbar.icon-only) .item.control):
+        (.toolbar.icon-only .item.control): Deleted.
+        * UserInterface/Views/DOMStorageContentView.css:
+        * UserInterface/Views/DashboardContainerView.css:
+        (.toolbar.icon-and-label-vertical:matches(.small-size, .normal-size) .dashboard-container):
+        (.toolbar:matches(.label-only, .small-size:matches(.icon-only, .icon-and-label-vertical, .icon-and-label-horizontal)) .dashboard-container):
+        (.toolbar.normal-size:matches(.icon-only, .icon-and-label-vertical, .icon-and-label-horizontal) .dashboard-container):
+        (.toolbar.normal-size.icon-and-label-vertical .dashboard-container): Deleted.
+        (.toolbar.small-size.icon-and-label-horizontal .dashboard-container): Deleted.
+        (.toolbar.normal-size.icon-and-label-horizontal .dashboard-container): Deleted.
+        * UserInterface/Views/DataGrid.css:
+        (.data-grid :matches(th, td):not(:last-child)):
+        (.data-grid th:matches(.sort-ascending, .sort-descending)):
+        (.data-grid :matches(th, td) > div):
+        (.data-grid th:matches(.sort-ascending, .sort-descending) > div:first-child):
+        (.data-grid tr:matches(.selected, :hover) .go-to-arrow):
+        (.data-grid :-webkit-any(th, td):not(:last-child)): Deleted.
+        (.data-grid th:-webkit-any(.sort-ascending, .sort-descending)): Deleted.
+        (.data-grid :-webkit-any(th, td) > div): Deleted.
+        (.data-grid th:-webkit-any(.sort-ascending, .sort-descending) > div:first-child): Deleted.
+        (.data-grid tr:-webkit-any(.selected, :hover) .go-to-arrow): Deleted.
+        * UserInterface/Views/DebuggerDashboardView.css:
+        (.toolbar.collapsed .dashboard.debugger > :not(.message, .navigation-bar )):
+        (.toolbar.collapsed .dashboard.debugger > :not(.message):not(.navigation-bar )): Deleted.
+        * UserInterface/Views/DefaultDashboardView.css:
+        (body.web .toolbar.collapsed .dashboard.default > :matches(.time, .resourcesSize, .logs)):
+        (body.javascript .toolbar .dashboard.default > :matches(.time, .resourcesSize, .resourcesCount)):
+        (.toolbar:matches(.label-only, .small-size:matches(.icon-only, .icon-and-label-vertical, .icon-and-label-horizontal)) .dashboard.default > .item):
+        (.toolbar.normal-size:matches(.icon-only, .icon-and-label-vertical, .icon-and-label-horizontal) .dashboard.default > .item):
+        (body.web .toolbar.collapsed .dashboard.default > .logs): Deleted.
+        (body.javascript .toolbar .dashboard.default > .resourcesCount): Deleted.
+        (.toolbar.small-size.icon-and-label-horizontal .dashboard.default > .item): Deleted.
+        (.toolbar.normal-size.icon-and-label-horizontal .dashboard.default > .item): Deleted.
+        * UserInterface/Views/DetailsSection.css:
+        (.details-section > .header > :matches(.node-link, .go-to-arrow)):
+        (.details-section > .content > .group:nth-child(even) > .row:matches(.simple:first-child > *, :not(.simple):first-child)):
+        (body.mac-platform.legacy .details-section > .content > .group:matches(:nth-child(even), :last-child) > .row.simple:last-child > *):
+        (.details-section > .content > .group > .row:matches(.empty, .text)):
+        (body.mac-platform.legacy .details-section > .content > .group > .row:matches(.empty, .text)):
+        (.details-section > .header > .go-to-arrow): Deleted.
+        (.details-section > .content > .group:nth-child(even) > .row.simple:first-child > *): Deleted.
+        (body.mac-platform.legacy .details-section > .content > .group:last-child > .row.simple:last-child > *): Deleted.
+        (.details-section > .content > .group > .row.text): Deleted.
+        (body.mac-platform.legacy .details-section > .content > .group > .row.text): Deleted.
+        * UserInterface/Views/FindBanner.css:
+        (:matches(.find-banner, .supports-find-banner).no-find-banner-transition):
+        (.supports-find-banner.no-find-banner-transition): Deleted.
+        * UserInterface/Views/FlexibleSpaceNavigationItem.css:
+        (:matches(.navigation-bar, .toolbar) .item.flexible-space):
+        (.toolbar .item.flexible-space): Deleted.
+
+2014-11-19  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: LayoutTests/inspector should not have localStorage side effects
+        https://bugs.webkit.org/show_bug.cgi?id=138895
+
+        Reviewed by Brian Burg.
+
+        When running inspector tests, do not restore/save WebInspector.Settings
+        to localStorage, as that will cause side effects. Instead each Setting
+        will be initialized with its default value and can be modified during
+        the run of the test.
+
+        * UserInterface/Base/Test.js:
+        (WebInspector.loaded):
+        Name the setting to match the normal setting name now that persistence
+        is not an issue.
+
+        * UserInterface/Models/Setting.js:
+        (WebInspector.Setting.prototype.get value):
+        (WebInspector.Setting.prototype.set value):
+        Do not restore/save when in tests.
+
+2014-11-19  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: JSContext inspection Resource search does not work
+        https://bugs.webkit.org/show_bug.cgi?id=131252
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Views/ResourceSidebarPanel.js:
+        (WebInspector.ResourceSidebarPanel.prototype.performSearch.resourceCallback):
+        (WebInspector.ResourceSidebarPanel.prototype.performSearch.resourcesCallback):
+        Cleanup by reordering things a bit.
+
+        (WebInspector.ResourceSidebarPanel.prototype.performSearch.searchScripts.scriptCallback):
+        (WebInspector.ResourceSidebarPanel.prototype.performSearch.searchScripts):
+        (WebInspector.ResourceSidebarPanel.prototype.performSearch):
+        Search non-resource scripts individually.
+
+        (WebInspector.ResourceSidebarPanel.prototype._searchTreeElementForScript):
+        Lazily create a ScriptTreeElement for the search tree outline as needed.
+
+        (WebInspector.ResourceSidebarPanel.prototype._scriptsToSearch):
+        When searching scripts, just perform a shallow walk of the tree outline to find
+        Script resources that are not also Resources. Scripts are always guarenteed to
+        be in a folder when inspecting a web resource. For JSContext inspection, scripts
+        are promoted to the top level.
+
+        * UserInterface/Main.html:
+        * UserInterface/Models/SourceCodeSearchMatchObject.js: Renamed from Source/WebInspectorUI/UserInterface/Models/ResourceSearchMatchObject.js.
+        (WebInspector.SourceCodeSearchMatchObject):
+        * UserInterface/Views/SearchIcons.css:
+        (.source-code-match-icon .icon):
+        (.resource-match-icon .icon): Deleted.
+        * UserInterface/Views/SearchResultTreeElement.js:
+        (WebInspector.SearchResultTreeElement):
+        Rename ResourceSearchMatchObject to SourceCodeSearchMatchObject.
+
+2014-11-19  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Provide $exception in the console for the thrown exception value
+        https://bugs.webkit.org/show_bug.cgi?id=138726
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Base/Test.js:
+        (WebInspector.loaded):
+        In order to use RuntimeManager to execute in the global context or on the
+        active debugger call frame, we need to expose the quickConsole controller.
+
+        * UserInterface/Controllers/JavaScriptRuntimeCompletionProvider.js:
+        Expose $exception to completion when we paused because of an exception.
+
+2014-11-19  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Debugger should not mutate variable when hovering mouse over ++n expression
+        https://bugs.webkit.org/show_bug.cgi?id=138839
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Controllers/CodeMirrorTokenTrackingController.js:
+        (WebInspector.CodeMirrorTokenTrackingController.prototype._processJavaScriptExpression):
+
+2014-11-19  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Improve basic JavaScript completion in inline <script>s
+        https://bugs.webkit.org/show_bug.cgi?id=138845
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Controllers/CodeMirrorCompletionController.js:
+        (WebInspector.CodeMirrorCompletionController.prototype._generateJavaScriptCompletions):
+        Fix up CodeMirror mode handling for JavaScript completion when inside of mixed mode
+        input (html). Also add completion for CodeMirror's localVars list.
+
+== Rolled over to ChangeLog-2014-11-19 ==
