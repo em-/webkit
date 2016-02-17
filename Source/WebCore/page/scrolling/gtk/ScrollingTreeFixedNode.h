@@ -34,6 +34,7 @@
 
 namespace WebCore {
 
+class CoordinatedGraphicsLayerClient;
 class FixedPositionViewportConstraints;
 
 class ScrollingTreeFixedNode : public ScrollingTreeNode {
@@ -45,11 +46,15 @@ public:
 private:
     ScrollingTreeFixedNode(ScrollingTree&, ScrollingNodeID);
 
+    void setLayerPosition(GraphicsLayer::PlatformLayerID, const FloatPoint&);
+
     virtual void updateBeforeChildren(const ScrollingStateNode&) override;
     virtual void updateLayersAfterAncestorChange(const ScrollingTreeNode& changedNode, const FloatRect& fixedPositionRect, const FloatSize& cumulativeDelta) override;
 
     FixedPositionViewportConstraints m_constraints;
     GraphicsLayer::PlatformLayerID m_layer;
+
+    CoordinatedGraphicsLayerClient* m_compositingCoordinator;
 };
 
 } // namespace WebCore

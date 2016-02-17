@@ -1,5 +1,31 @@
 2016-02-17  ChangSeok Oh  <changseok.oh@collabora.com>
 
+        [GTK] Support async scrolling for fixed elements
+        https://bugs.webkit.org/show_bug.cgi?id=153857
+
+        Reviewed by NOBODY (OOPS!).
+
+        This is a series patch to support fixed elements where the threaded compositor is enabled.
+        The fixed elements mean those elements having the position:fixed style, so they were always placed
+        at the same location even though a web page is scrolled. Basic approach is same with
+        ScrollingTreeFrameScrollingNode. When scroll occurs, new position of fixed elements is calculated
+        in the scrolling thread, let threaded compositor move relevant layer first in compositing and update visible
+        area later.
+
+        No new tests needed.
+
+        * page/scrolling/AsyncScrollingCoordinator.cpp:
+        (WebCore::AsyncScrollingCoordinator::updateViewportConstrainedNode): Set compositing coordinator
+        * page/scrolling/gtk/ScrollingTreeFixedNode.cpp:
+        (WebCore::ScrollingTreeFixedNode::ScrollingTreeFixedNode):
+        (WebCore::ScrollingTreeFixedNode::~ScrollingTreeFixedNode):
+        (WebCore::ScrollingTreeFixedNode::setLayerPosition): Commit a new layer position for threaded compositor to update.
+        (WebCore::ScrollingTreeFixedNode::updateBeforeChildren):
+        (WebCore::ScrollingTreeFixedNode::updateLayersAfterAncestorChange):
+        * page/scrolling/gtk/ScrollingTreeFixedNode.h:
+
+2016-02-17  ChangSeok Oh  <changseok.oh@collabora.com>
+
         [GTK] Implement initial support of asynchronous scrolling.
         https://bugs.webkit.org/show_bug.cgi?id=151436
 

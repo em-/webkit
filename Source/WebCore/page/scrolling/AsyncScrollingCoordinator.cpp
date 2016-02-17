@@ -514,6 +514,9 @@ void AsyncScrollingCoordinator::updateViewportConstrainedNode(ScrollingNodeID no
         ScrollingStateFixedNode& fixedNode = downcast<ScrollingStateFixedNode>(*node);
         fixedNode.setLayer(graphicsLayer);
         fixedNode.updateConstraints((const FixedPositionViewportConstraints&)constraints);
+#if USE(COORDINATED_GRAPHICS)
+        fixedNode.setCompositingCoordinator(downcast<CoordinatedGraphicsLayer>(graphicsLayer)->coordinator());
+#endif
         break;
     }
     case ViewportConstraints::StickyPositionConstraint: {

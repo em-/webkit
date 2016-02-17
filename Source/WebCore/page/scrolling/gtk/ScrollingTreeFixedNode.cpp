@@ -28,9 +28,12 @@
 
 #if ENABLE(ASYNC_SCROLLING)
 
-#include "NotImplemented.h"
 #include "ScrollingStateFixedNode.h"
 #include "ScrollingTree.h"
+
+#if USE(COORDINATED_GRAPHICS)
+#include "CoordinatedGraphicsLayer.h"
+#endif
 
 namespace WebCore {
 
@@ -41,21 +44,58 @@ Ref<ScrollingTreeFixedNode> ScrollingTreeFixedNode::create(ScrollingTree& scroll
 
 ScrollingTreeFixedNode::ScrollingTreeFixedNode(ScrollingTree& scrollingTree, ScrollingNodeID nodeID)
     : ScrollingTreeNode(scrollingTree, FixedNode, nodeID)
+    , m_compositingCoordinator(nullptr)
 {
+    scrollingTree.fixedOrStickyNodeAdded();
 }
 
 ScrollingTreeFixedNode::~ScrollingTreeFixedNode()
 {
+    scrollingTree().fixedOrStickyNodeRemoved();
 }
 
-void ScrollingTreeFixedNode::updateBeforeChildren(const ScrollingStateNode&)
+void ScrollingTreeFixedNode::setLayerPosition(GraphicsLayer::PlatformLayerID id, const FloatPoint& p)
 {
-    notImplemented();
+#if USE(COORDINATED_GRAPHICS)
+    ASSERT(m_compositingCoordinator);
+    m_compositingCoordinator->commitLayerPosition(id, p);
+#else
+    UNUSED_PARAM(id);
+    UNUSED_PARAM(p);
+#endif
 }
 
-void ScrollingTreeFixedNode::updateLayersAfterAncestorChange(const ScrollingTreeNode&, const FloatRect&, const FloatSize&)
+void ScrollingTreeFixedNode::updateBeforeChildren(const ScrollingStateNode& stateNode)
 {
-    notImplemented();
+    const ScrollingStateFixedNode& fixedStateNode = downcast<ScrollingStateFixedNode>(stateNode);
+
+#if USE(COORDINATED_GRAPHICS)
+    CoordinatedGraphicsLayerClient* compositingCoordinator = fixedStateNode.compositingCoordinator();
+    if (compositingCoordinator && compositingCoordinator != m_compositingCoordinator)
+        m_compositingCoordinator = compositingCoordinator;
+#endif
+
+    if (fixedStateNode.hasChangedProperty(ScrollingStateNode::ScrollLayer))
+        m_layer = fixedStateNode.layer();
+
+    if (stateNode.hasChangedProperty(ScrollingStateFixedNode::ViewportConstraints))
+        m_constraints = fixedStateNode.viewportConstraints();
+}
+
+void ScrollingTreeFixedNode::updateLayersAfterAncestorChange(const ScrollingTreeNode& changedNode, const FloatRect& fixedPositionRect, const FloatSize& cumulativeDelta)
+{
+    FloatPoint layerPosition = m_constraints.layerPositionForViewportRect(fixedPositionRect);
+    layerPosition -= cumulativeDelta;
+
+    const FloatPoint newPosition = layerPosition - m_constraints.alignmentOffset();
+    setLayerPosition(m_layer, newPosition);
+
+    if (!m_children)
+        return;
+
+    const FloatSize newDelta = layerPosition - m_constraints.layerPositionAtLastLayout() + cumulativeDelta;
+    for (auto& child : *m_children)
+        child->updateLayersAfterAncestorChange(changedNode, fixedPositionRect, newDelta);
 }
 
 } // namespace WebCore
