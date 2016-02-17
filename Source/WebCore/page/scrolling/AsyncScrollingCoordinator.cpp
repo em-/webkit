@@ -523,6 +523,9 @@ void AsyncScrollingCoordinator::updateViewportConstrainedNode(ScrollingNodeID no
         ScrollingStateStickyNode& stickyNode = downcast<ScrollingStateStickyNode>(*node);
         stickyNode.setLayer(graphicsLayer);
         stickyNode.updateConstraints((const StickyPositionViewportConstraints&)constraints);
+#if USE(COORDINATED_GRAPHICS)
+        stickyNode.setCompositingCoordinator(downcast<CoordinatedGraphicsLayer>(graphicsLayer)->coordinator());
+#endif
         break;
     }
     }

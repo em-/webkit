@@ -28,9 +28,14 @@
 
 #if ENABLE(ASYNC_SCROLLING)
 
-#include "NotImplemented.h"
 #include "ScrollingStateStickyNode.h"
 #include "ScrollingTree.h"
+#include "ScrollingTreeFrameScrollingNode.h"
+#include "ScrollingTreeOverflowScrollingNode.h"
+
+#if USE(COORDINATED_GRAPHICS)
+#include "CoordinatedGraphicsLayer.h"
+#endif
 
 namespace WebCore {
 
@@ -41,21 +46,72 @@ Ref<ScrollingTreeStickyNode> ScrollingTreeStickyNode::create(ScrollingTree& scro
 
 ScrollingTreeStickyNode::ScrollingTreeStickyNode(ScrollingTree& scrollingTree, ScrollingNodeID nodeID)
     : ScrollingTreeNode(scrollingTree, StickyNode, nodeID)
+    , m_compositingCoordinator(nullptr)
 {
+    scrollingTree.fixedOrStickyNodeAdded();
 }
 
 ScrollingTreeStickyNode::~ScrollingTreeStickyNode()
 {
+    scrollingTree().fixedOrStickyNodeRemoved();
 }
 
-void ScrollingTreeStickyNode::updateBeforeChildren(const ScrollingStateNode&)
+void ScrollingTreeStickyNode::setLayerPosition(GraphicsLayer::PlatformLayerID id, const FloatPoint& p)
 {
-    notImplemented();
+#if USE(COORDINATED_GRAPHICS)
+    ASSERT(m_compositingCoordinator);
+    m_compositingCoordinator->commitLayerPosition(id, p);
+#else
+    UNUSED_PARAM(id);
+    UNUSED_PARAM(p);
+#endif
 }
 
-void ScrollingTreeStickyNode::updateLayersAfterAncestorChange(const ScrollingTreeNode&, const FloatRect&, const FloatSize&)
+void ScrollingTreeStickyNode::updateBeforeChildren(const ScrollingStateNode& stateNode)
 {
-    notImplemented();
+    const ScrollingStateStickyNode& stickyStateNode = downcast<ScrollingStateStickyNode>(stateNode);
+
+#if USE(COORDINATED_GRAPHICS)
+    CoordinatedGraphicsLayerClient* compositingCoordinator = stickyStateNode.compositingCoordinator();
+    if (compositingCoordinator && compositingCoordinator != m_compositingCoordinator)
+        m_compositingCoordinator = compositingCoordinator;
+#endif
+
+    if (stickyStateNode.hasChangedProperty(ScrollingStateNode::ScrollLayer))
+        m_layer = stickyStateNode.layer();
+
+    if (stateNode.hasChangedProperty(ScrollingStateStickyNode::ViewportConstraints))
+        m_constraints = stickyStateNode.viewportConstraints();
+}
+
+void ScrollingTreeStickyNode::updateLayersAfterAncestorChange(const ScrollingTreeNode& changedNode, const FloatRect& fixedPositionRect, const FloatSize& cumulativeDelta)
+{
+    bool adjustStickyLayer = false;
+    FloatRect constrainingRect;
+
+    if (is<ScrollingTreeOverflowScrollingNode>(*parent())) {
+        constrainingRect = FloatRect(downcast<ScrollingTreeOverflowScrollingNode>(*parent()).scrollPosition(), m_constraints.constrainingRectAtLastLayout().size());
+        adjustStickyLayer = true;
+    } else if (is<ScrollingTreeFrameScrollingNode>(*parent())) {
+        constrainingRect = fixedPositionRect;
+        adjustStickyLayer = true;
+    }
+
+    FloatSize deltaForDescendants = cumulativeDelta;
+
+    if (adjustStickyLayer) {
+        const FloatPoint layerPosition = m_constraints.layerPositionForConstrainingRect(constrainingRect);
+        const FloatPoint newPosition = layerPosition - m_constraints.alignmentOffset();
+        setLayerPosition(m_layer, newPosition);
+
+        deltaForDescendants = layerPosition - m_constraints.layerPositionAtLastLayout() + cumulativeDelta;
+    }
+
+    if (!m_children)
+        return;
+
+    for (auto& child : *m_children)
+        child->updateLayersAfterAncestorChange(changedNode, fixedPositionRect, deltaForDescendants);
 }
 
 } // namespace WebCore

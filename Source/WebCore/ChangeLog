@@ -1,5 +1,31 @@
 2016-02-17  ChangSeok Oh  <changseok.oh@collabora.com>
 
+        [GTK] Support async scrolling for sticky elements
+        https://bugs.webkit.org/show_bug.cgi?id=154279
+
+        Reviewed by NOBODY (OOPS!).
+
+        This is a series patch to support sticky elements where the threaded compositor is enabled.
+        The fixed elements mean those elements having the position:sticky style, so they were always
+        placed at the same location but not break the existing box flow even though a web page is scrolled.
+        The approach is same with the way used for ScrollingTreeFixedNode. Most of code originates
+        from mac port implementation except setting/getting the compositing coordinator and calculating
+        a new position of sticky layers.
+
+        No new tests needed.
+
+        * page/scrolling/AsyncScrollingCoordinator.cpp:
+        (WebCore::AsyncScrollingCoordinator::updateViewportConstrainedNode):
+        * page/scrolling/gtk/ScrollingTreeStickyNode.cpp:
+        (WebCore::ScrollingTreeStickyNode::ScrollingTreeStickyNode):
+        (WebCore::ScrollingTreeStickyNode::~ScrollingTreeStickyNode):
+        (WebCore::ScrollingTreeStickyNode::setLayerPosition):
+        (WebCore::ScrollingTreeStickyNode::updateBeforeChildren):
+        (WebCore::ScrollingTreeStickyNode::updateLayersAfterAncestorChange):
+        * page/scrolling/gtk/ScrollingTreeStickyNode.h:
+
+2016-02-17  ChangSeok Oh  <changseok.oh@collabora.com>
+
         [GTK] Support async scrolling for fixed elements
         https://bugs.webkit.org/show_bug.cgi?id=153857
 

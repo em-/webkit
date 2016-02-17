@@ -29,10 +29,12 @@
 #if ENABLE(ASYNC_SCROLLING)
 
 #include "GraphicsLayer.h"
+#include "ScrollingConstraints.h"
 #include "ScrollingTreeNode.h"
 
 namespace WebCore {
 
+class CoordinatedGraphicsLayerClient;
 class StickyPositionViewportConstraints;
 
 class ScrollingTreeStickyNode : public ScrollingTreeNode {
@@ -44,10 +46,15 @@ public:
 private:
     ScrollingTreeStickyNode(ScrollingTree&, ScrollingNodeID);
 
+    void setLayerPosition(GraphicsLayer::PlatformLayerID, const FloatPoint&);
+
     virtual void updateBeforeChildren(const ScrollingStateNode&) override;
     virtual void updateLayersAfterAncestorChange(const ScrollingTreeNode& changedNode, const FloatRect& fixedPositionRect, const FloatSize& cumulativeDelta) override;
 
+    StickyPositionViewportConstraints m_constraints;
     GraphicsLayer::PlatformLayerID m_layer;
+
+    CoordinatedGraphicsLayerClient* m_compositingCoordinator;
 };
 
 } // namespace WebCore
