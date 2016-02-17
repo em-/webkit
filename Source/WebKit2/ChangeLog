@@ -1,3 +1,35 @@
+2016-02-17  ChangSeok Oh  <changseok.oh@collabora.com>
+
+        [GTK] Implement initial support of asynchronous scrolling.
+        https://bugs.webkit.org/show_bug.cgi?id=151436
+
+        Reviewed by NOBODY (OOPS!).
+
+        Most of changes in WebKit2 layer is related to adding an interface to set TextureMapperLayer a position
+        from CompositingCoordinator.
+
+        * Shared/CoordinatedGraphics/CoordinatedGraphicsScene.cpp:
+        (WebKit::CoordinatedGraphicsScene::getLayerByIDIfExists):
+        (WebKit::CoordinatedGraphicsScene::setLayerPosition):
+        * Shared/CoordinatedGraphics/CoordinatedGraphicsScene.h:
+        * Shared/CoordinatedGraphics/threadedcompositor/ThreadedCompositor.cpp:
+        (WebKit::ThreadedCompositor::commitLayerPosition):
+        * Shared/CoordinatedGraphics/threadedcompositor/ThreadedCompositor.h:
+        * UIProcess/WebPageProxy.cpp:
+        (WebKit::WebPageProxy::initializeWebPage):
+        (WebKit::WebPageProxy::handleWheelEvent):
+        (WebKit::WebPageProxy::shouldStartTrackingTouchEvents):
+        * UIProcess/WebPageProxy.h:
+        * WebProcess/WebCoreSupport/WebChromeClient.cpp:
+        (WebKit::WebChromeClient::createScrollingCoordinator):
+        * WebProcess/WebPage/CoordinatedGraphics/ThreadedCoordinatedLayerTreeHost.cpp:
+        (WebKit::ThreadedCoordinatedLayerTreeHost::commitLayerPosition):
+        * WebProcess/WebPage/CoordinatedGraphics/ThreadedCoordinatedLayerTreeHost.h:
+        * WebProcess/WebPage/DrawingAreaImpl.h:
+        (WebKit::DrawingAreaImpl::supportsAsyncScrolling):
+        * WebProcess/WebPage/EventDispatcher.cpp:
+        (WebKit::EventDispatcher::wheelEvent):
+
 2016-02-16  ChangSeok Oh  <changseok.oh@collabora.com>
 
         [ThreadedCompositor] position:fixed elements do not have their own layers when threaded compositor is enabled.

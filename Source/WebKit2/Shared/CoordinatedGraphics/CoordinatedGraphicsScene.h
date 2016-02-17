@@ -75,6 +75,10 @@ public:
     void detach();
     void appendUpdate(std::function<void()>);
 
+#if ENABLE(ASYNC_SCROLLING)
+    void setLayerPosition(uint32_t layerID, const WebCore::FloatPoint&);
+#endif
+
     WebCore::TextureMapperLayer* findScrollableContentsLayerAt(const WebCore::FloatPoint&);
 
     virtual void commitScrollOffset(uint32_t layerID, const WebCore::IntSize& offset);

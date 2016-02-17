@@ -44,7 +44,9 @@
 #include <wtf/MainThread.h>
 #include <wtf/text/StringBuilder.h>
 
-#if USE(COORDINATED_GRAPHICS)
+#if PLATFORM(GTK) && ENABLE(ASYNC_SCROLLING) && USE(COORDINATED_GRAPHICS_THREADED)
+#include "ScrollingCoordinatorGtk.h"
+#elif USE(COORDINATED_GRAPHICS)
 #include "ScrollingCoordinatorCoordinatedGraphics.h"
 #endif
 
@@ -58,7 +60,9 @@ namespace WebCore {
 #if !PLATFORM(COCOA)
 Ref<ScrollingCoordinator> ScrollingCoordinator::create(Page* page)
 {
-#if USE(COORDINATED_GRAPHICS)
+#if PLATFORM(GTK) && ENABLE(ASYNC_SCROLLING) && USE(COORDINATED_GRAPHICS_THREADED)
+    return adoptRef(*new ScrollingCoordinatorGtk(page));
+#elif USE(COORDINATED_GRAPHICS)
     return adoptRef(*new ScrollingCoordinatorCoordinatedGraphics(page));
 #endif
 

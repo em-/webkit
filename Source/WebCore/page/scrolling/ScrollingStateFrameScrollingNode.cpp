@@ -48,6 +48,9 @@ ScrollingStateFrameScrollingNode::ScrollingStateFrameScrollingNode(const Scrolli
 #if PLATFORM(MAC)
     , m_verticalScrollbarPainter(stateNode.verticalScrollbarPainter())
     , m_horizontalScrollbarPainter(stateNode.horizontalScrollbarPainter())
+#elif PLATFORM(GTK)
+    , m_verticalScrollbar(stateNode.verticalScrollbar())
+    , m_horizontalScrollbar(stateNode.horizontalScrollbar())
 #endif
     , m_nonFastScrollableRegion(stateNode.nonFastScrollableRegion())
     , m_requestedScrollPosition(stateNode.requestedScrollPosition())
@@ -215,7 +218,7 @@ void ScrollingStateFrameScrollingNode::setFixedElementsLayoutRelativeToFrame(boo
     setPropertyChanged(FixedElementsLayoutRelativeToFrame);
 }
 
-#if !PLATFORM(MAC)
+#if !PLATFORM(MAC) && !PLATFORM(GTK)
 void ScrollingStateFrameScrollingNode::setScrollbarPaintersFromScrollbars(Scrollbar*, Scrollbar*)
 {
 }

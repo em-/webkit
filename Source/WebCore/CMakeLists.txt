@@ -2047,6 +2047,7 @@ set(WebCore_SOURCES
     page/animation/ImplicitAnimation.cpp
     page/animation/KeyframeAnimation.cpp
 
+    page/scrolling/AsyncScrollingCoordinator.cpp
     page/scrolling/AxisScrollSnapOffsets.cpp
     page/scrolling/ScrollLatchingState.cpp
     page/scrolling/ScrollingConstraints.cpp

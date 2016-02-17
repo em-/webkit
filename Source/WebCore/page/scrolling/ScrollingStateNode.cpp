@@ -42,6 +42,9 @@ ScrollingStateNode::ScrollingStateNode(ScrollingNodeType nodeType, ScrollingStat
     , m_changedProperties(0)
     , m_scrollingStateTree(scrollingStateTree)
     , m_parent(nullptr)
+#if USE(COORDINATED_GRAPHICS)
+    , m_compositingCoordinator(nullptr)
+#endif
 {
 }
 
@@ -53,6 +56,9 @@ ScrollingStateNode::ScrollingStateNode(const ScrollingStateNode& stateNode, Scro
     , m_changedProperties(stateNode.changedProperties())
     , m_scrollingStateTree(adoptiveTree)
     , m_parent(nullptr)
+#if USE(COORDINATED_GRAPHICS)
+    , m_compositingCoordinator(stateNode.compositingCoordinator())
+#endif
 {
     if (hasChangedProperty(ScrollLayer))
         setLayer(stateNode.layer().toRepresentation(adoptiveTree.preferredLayerRepresentation()));

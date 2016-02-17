@@ -44,6 +44,10 @@
 #include "ScrollingStateTree.h"
 #include "WheelEventTestTrigger.h"
 
+#if USE(COORDINATED_GRAPHICS)
+#include "CoordinatedGraphicsLayer.h"
+#endif
+
 namespace WebCore {
 
 AsyncScrollingCoordinator::AsyncScrollingCoordinator(Page* page)
@@ -71,10 +75,16 @@ static inline void setStateScrollingNodeSnapOffsetsAsFloat(ScrollingStateScrolli
         for (auto& offset : *snapOffsets)
             snapOffsetsAsFloat.uncheckedAppend(roundToDevicePixel(offset, deviceScaleFactor, false));
     }
+
+#if ENABLE(CSS_SCROLL_SNAP)
     if (axis == ScrollEventAxis::Horizontal)
         node.setHorizontalSnapOffsets(snapOffsetsAsFloat);
     else
         node.setVerticalSnapOffsets(snapOffsetsAsFloat);
+#else
+    UNUSED_PARAM(axis);
+    UNUSED_PARAM(node);
+#endif
 }
 
 void AsyncScrollingCoordinator::setNonFastScrollableRegionDirty()
@@ -452,6 +462,10 @@ void AsyncScrollingCoordinator::updateFrameScrollingNode(ScrollingNodeID nodeID,
     node->setInsetClipLayer(insetClipLayer);
     node->setScrolledContentsLayer(scrolledContentsLayer);
     node->setCounterScrollingLayer(counterScrollingLayer);
+#if USE(COORDINATED_GRAPHICS)
+    node->setCompositingCoordinator(downcast<CoordinatedGraphicsLayer>(layer)->coordinator());
+    node->setLayerPosition(layer->position());
+#endif
 
     if (scrollingGeometry) {
         node->setScrollOrigin(scrollingGeometry->scrollOrigin);

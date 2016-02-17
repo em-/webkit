@@ -59,6 +59,9 @@ public:
         virtual void notifyFlushRequired() = 0;
         virtual void commitSceneState(const CoordinatedGraphicsState&) = 0;
         virtual void paintLayerContents(const GraphicsLayer*, GraphicsContext&, const IntRect& clipRect) = 0;
+#if ENABLE(ASYNC_SCROLLING)
+        virtual void commitLayerPosition(CoordinatedLayerID, const FloatPoint&) = 0;
+#endif
     };
 
     CompositingCoordinator(Page*, CompositingCoordinator::Client*);
@@ -108,6 +111,9 @@ private:
     virtual void detachLayer(CoordinatedGraphicsLayer*) override;
     virtual bool paintToSurface(const WebCore::IntSize&, WebCore::CoordinatedSurface::Flags, uint32_t& /* atlasID */, WebCore::IntPoint&, WebCore::CoordinatedSurface::Client*) override;
     virtual void syncLayerState(CoordinatedLayerID, CoordinatedGraphicsLayerState&) override;
+#if ENABLE(ASYNC_SCROLLING)
+    virtual void commitLayerPosition(CoordinatedLayerID, const FloatPoint&) override;
+#endif
 
     // UpdateAtlas::Client
     virtual void createUpdateAtlas(uint32_t atlasID, PassRefPtr<CoordinatedSurface>) override;

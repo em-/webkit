@@ -34,15 +34,14 @@
 
 namespace WebCore {
 
+#if !PLATFORM(GTK)
 ScrollingThread::ScrollingThread()
     : m_threadIdentifier(0)
 {
 }
 
-bool ScrollingThread::isCurrentThread()
+ScrollingThread::~ScrollingThread()
 {
-    auto threadIdentifier = ScrollingThread::singleton().m_threadIdentifier;
-    return threadIdentifier && currentThread() == threadIdentifier;
 }
 
 void ScrollingThread::dispatch(std::function<void ()> function)
@@ -56,6 +55,27 @@ void ScrollingThread::dispatch(std::function<void ()> function)
     }
 
     scrollingThread.wakeUpRunLoop();
+}
+
+void ScrollingThread::dispatchFunctionsFromScrollingThread()
+{
+    ASSERT(isCurrentThread());
+
+    Vector<std::function<void ()>> functions;
+    {
+        std::lock_guard<Lock> lock(m_functionsMutex);
+        functions = WTFMove(m_functions);
+    }
+
+    for (auto& function : functions)
+        function();
+}
+#endif
+
+bool ScrollingThread::isCurrentThread()
+{
+    auto threadIdentifier = ScrollingThread::singleton().m_threadIdentifier;
+    return threadIdentifier && currentThread() == threadIdentifier;
 }
 
 void ScrollingThread::dispatchBarrier(std::function<void ()> function)
@@ -85,6 +105,8 @@ void ScrollingThread::createThreadIfNeeded()
         
 #if PLATFORM(COCOA)
         m_initializeRunLoopConditionVariable.wait(lock, [this]{ return m_threadRunLoop; });
+#elif PLATFORM(GTK)
+        m_initializeRunLoopConditionVariable.wait(lock);
 #endif
     }
 }
@@ -98,21 +120,6 @@ void ScrollingThread::threadCallback(void* scrollingThread)
 void ScrollingThread::threadBody()
 {
     initializeRunLoop();
-}
-
-void ScrollingThread::dispatchFunctionsFromScrollingThread()
-{
-    ASSERT(isCurrentThread());
-
-    Vector<std::function<void ()>> functions;
-    
-    {
-        std::lock_guard<Lock> lock(m_functionsMutex);
-        functions = WTFMove(m_functions);
-    }
-
-    for (auto& function : functions)
-        function();
 }
 
 } // namespace WebCore

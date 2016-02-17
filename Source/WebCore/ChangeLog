@@ -1,3 +1,138 @@
+2016-02-17  ChangSeok Oh  <changseok.oh@collabora.com>
+
+        [GTK] Implement initial support of asynchronous scrolling.
+        https://bugs.webkit.org/show_bug.cgi?id=151436
+
+        Reviewed by NOBODY (OOPS!).
+
+        This change brings the asynchronous scrolling feature to the gtk port. Basic idea is to handle
+        scroll events in a separate thread called 'scrolling thread', not the main thread.
+        The scroll events are processed and new position of relevant layers is calculated and then move
+        platformLayers according to the postions in the scrolling thread. Visible rect is updated
+        after that in the main thread when synchronizing the calculated position with GraphicsLayer's position.
+        This patch does not fully support fixed, sticky and overflow element yet. They will be covered by following
+        patches. Also, the feature is implemented based on the threaded compositor. Other cases will be handled later.
+
+        No new tests needed.
+
+        * CMakeLists.txt:
+        * PlatformGTK.cmake:
+        * page/scrolling/AsyncScrollingCoordinator.cpp:
+        (WebCore::setStateScrollingNodeSnapOffsetsAsFloat):
+        (WebCore::AsyncScrollingCoordinator::updateFrameScrollingNode):
+        * page/scrolling/ScrollingCoordinator.cpp:
+        (WebCore::ScrollingCoordinator::create):
+        * page/scrolling/ScrollingStateFrameScrollingNode.cpp:
+        (WebCore::ScrollingStateFrameScrollingNode::ScrollingStateFrameScrollingNode):
+        * page/scrolling/ScrollingStateFrameScrollingNode.h:
+        * page/scrolling/ScrollingStateNode.cpp:
+        (WebCore::ScrollingStateNode::ScrollingStateNode):
+        * page/scrolling/ScrollingStateNode.h:
+        (WebCore::ScrollingStateNode::compositingCoordinator):
+        (WebCore::ScrollingStateNode::setCompositingCoordinator):
+        (WebCore::ScrollingStateNode::layerPosition):
+        (WebCore::ScrollingStateNode::setLayerPosition):
+        * page/scrolling/ScrollingThread.cpp:
+        (WebCore::ScrollingThread::~ScrollingThread):
+        (WebCore::ScrollingThread::dispatchFunctionsFromScrollingThread):
+        (WebCore::ScrollingThread::isCurrentThread):
+        (WebCore::ScrollingThread::createThreadIfNeeded):
+        * page/scrolling/ScrollingThread.h:
+        * page/scrolling/ScrollingTree.cpp:
+        (WebCore::ScrollingTree::shouldHandleWheelEventSynchronously):
+        (WebCore::ScrollingTree::setOrClearLatchedNode):
+        (WebCore::ScrollingTree::willWheelEventStartSwipeGesture):
+        * page/scrolling/ThreadedScrollingTree.cpp:
+        (WebCore::ThreadedScrollingTree::currentSnapPointIndicesDidChange):
+        * page/scrolling/coordinatedgraphics/AsyncScrollingCoordinatorCoordinatedGraphics.cpp: Added.
+        (WebCore::ScrollingCoordinator::create):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::AsyncScrollingCoordinatorCoordinatedGraphics):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::~AsyncScrollingCoordinatorCoordinatedGraphics):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::pageDestroyed):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::commitTreeStateIfNeeded):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::handleWheelEvent):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::scheduleTreeStateCommit):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::commitTreeState):
+        (WebCore::AsyncScrollingCoordinatorCoordinatedGraphics::updateTiledScrollingIndicator):
+        * page/scrolling/coordinatedgraphics/AsyncScrollingCoordinatorCoordinatedGraphics.h: Added.
+        * page/scrolling/gtk/ScrollingCoordinatorGtk.cpp: Added.
+        (WebCore::ScrollingCoordinatorGtk::ScrollingCoordinatorGtk):
+        (WebCore::ScrollingCoordinatorGtk::~ScrollingCoordinatorGtk):
+        (WebCore::ScrollingCoordinatorGtk::pageDestroyed):
+        (WebCore::ScrollingCoordinatorGtk::commitTreeStateIfNeeded):
+        (WebCore::ScrollingCoordinatorGtk::handleWheelEvent):
+        (WebCore::ScrollingCoordinatorGtk::scheduleTreeStateCommit):
+        (WebCore::ScrollingCoordinatorGtk::commitTreeState):
+        (WebCore::ScrollingCoordinatorGtk::updateTiledScrollingIndicator):
+        * page/scrolling/gtk/ScrollingCoordinatorGtk.h: Added.
+        * page/scrolling/gtk/ScrollingStateFrameScrollingNodeGtk.cpp: Added.
+        (WebCore::ScrollingStateFrameScrollingNode::setScrollbarPaintersFromScrollbars):
+        * page/scrolling/gtk/ScrollingThreadGtk.cpp: Copied from Source/WebCore/page/scrolling/ScrollingThread.cpp.
+        (WebCore::ScrollingRunLoop::ScrollingRunLoop):
+        (WebCore::ScrollingRunLoop::callOnScrollingRunLoop):
+        (WebCore::ScrollingRunLoop::runLoop):
+        (WebCore::ScrollingThread::ScrollingThread):
+        (WebCore::ScrollingThread::~ScrollingThread):
+        (WebCore::ScrollingThread::initializeRunLoop):
+        (WebCore::ScrollingThread::terminateScrollingThread):
+        (WebCore::ScrollingThread::dispatch):
+        * page/scrolling/gtk/ScrollingTreeFixedNode.cpp: Added.
+        (WebCore::ScrollingTreeFixedNode::create):
+        (WebCore::ScrollingTreeFixedNode::ScrollingTreeFixedNode):
+        (WebCore::ScrollingTreeFixedNode::~ScrollingTreeFixedNode):
+        (WebCore::ScrollingTreeFixedNode::updateBeforeChildren):
+        (WebCore::ScrollingTreeFixedNode::updateLayersAfterAncestorChange):
+        * page/scrolling/gtk/ScrollingTreeFixedNode.h: Added.
+        * page/scrolling/gtk/ScrollingTreeFrameScrollingNodeGtk.cpp: Added.
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::create):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::ScrollingTreeFrameScrollingNodeGtk):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::~ScrollingTreeFrameScrollingNodeGtk):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::setLayerPosition):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::updateBeforeChildren):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::updateAfterChildren):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::handleWheelEvent):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::isAlreadyPinnedInDirectionOfGesture):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::scrollBy):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::scrollPosition):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::setScrollPosition):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::setScrollPositionWithoutContentEdgeConstraints):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::setScrollLayerPosition):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::updateLayersAfterViewportChange):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::minimumScrollPosition):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::maximumScrollPosition):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::updateMainFramePinState):
+        (WebCore::ScrollingTreeFrameScrollingNodeGtk::logExposedUnfilledArea):
+        (WebCore::logThreadedScrollingMode):
+        * page/scrolling/gtk/ScrollingTreeFrameScrollingNodeGtk.h: Added.
+        * page/scrolling/gtk/ScrollingTreeGtk.cpp: Added.
+        (ScrollingTreeGtk::create):
+        (ScrollingTreeGtk::ScrollingTreeGtk):
+        (ScrollingTreeGtk::createScrollingTreeNode):
+        * page/scrolling/gtk/ScrollingTreeGtk.h: Added.
+        * page/scrolling/gtk/ScrollingTreeStickyNode.cpp: Added.
+        (WebCore::ScrollingTreeStickyNode::create):
+        (WebCore::ScrollingTreeStickyNode::ScrollingTreeStickyNode):
+        (WebCore::ScrollingTreeStickyNode::~ScrollingTreeStickyNode):
+        (WebCore::ScrollingTreeStickyNode::updateBeforeChildren):
+        (WebCore::ScrollingTreeStickyNode::updateLayersAfterAncestorChange):
+        * page/scrolling/gtk/ScrollingTreeStickyNode.h: Added.
+        * platform/Scrollbar.cpp:
+        (WebCore::Scrollbar::supportsUpdateOnSecondaryThread):
+        * platform/graphics/texmap/coordinated/CompositingCoordinator.cpp:
+        (WebCore::CompositingCoordinator::commitLayerPosition):
+        * platform/graphics/texmap/coordinated/CompositingCoordinator.h:
+        * platform/graphics/texmap/coordinated/CoordinatedGraphicsLayer.cpp:
+        (WebCore::CoordinatedGraphicsLayer::syncPosition):
+        * platform/graphics/texmap/coordinated/CoordinatedGraphicsLayer.h:
+        (WebCore::CoordinatedGraphicsLayer::coordinator):
+        * platform/gtk/ScrollController.cpp: Added.
+        (WebCore::ScrollController::ScrollController):
+        (WebCore::ScrollController::handleWheelEvent):
+        * platform/gtk/ScrollController.h: Added.
+        (WebCore::ScrollControllerClient::~ScrollControllerClient):
+        (WebCore::ScrollControllerClient::deferTestsForReason):
+        (WebCore::ScrollControllerClient::removeTestDeferralForReason):
+
 2016-01-05  Zalan Bujtas  <zalan@apple.com>
 
         showRenderTree: add inline-block/inline/block column.

@@ -123,7 +123,7 @@
 #include <wtf/NeverDestroyed.h>
 #include <wtf/text/StringView.h>
 
-#if ENABLE(ASYNC_SCROLLING)
+#if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
 #include "RemoteScrollingCoordinatorProxy.h"
 #endif
 
@@ -778,7 +778,7 @@ void WebPageProxy::initializeWebPage()
     m_drawingArea = m_pageClient.createDrawingAreaProxy();
     ASSERT(m_drawingArea);
 
-#if ENABLE(ASYNC_SCROLLING)
+#if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
     if (m_drawingArea->type() == DrawingAreaTypeRemoteLayerTree) {
         m_scrollingCoordinatorProxy = std::make_unique<RemoteScrollingCoordinatorProxy>(*this);
 #if PLATFORM(IOS)
@@ -1755,7 +1755,7 @@ static WebWheelEvent coalescedWheelEvent(Deque<NativeWebWheelEvent>& queue, Vect
 
 void WebPageProxy::handleWheelEvent(const NativeWebWheelEvent& event)
 {
-#if ENABLE(ASYNC_SCROLLING)
+#if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
     if (m_scrollingCoordinatorProxy && m_scrollingCoordinatorProxy->handleWheelEvent(platform(event)))
         return;
 #endif
@@ -1885,7 +1885,7 @@ void WebPageProxy::findPlugin(const String& mimeType, uint32_t processType, cons
 
 bool WebPageProxy::shouldStartTrackingTouchEvents(const WebTouchEvent& touchStartEvent) const
 {
-#if ENABLE(ASYNC_SCROLLING)
+#if ENABLE(ASYNC_SCROLLING) && PLATFORM(IOS)
     for (auto& touchPoint : touchStartEvent.touchPoints()) {
         if (m_scrollingCoordinatorProxy->isPointInNonFastScrollableRegion(touchPoint.location()))
             return true;

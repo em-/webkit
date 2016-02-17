@@ -25,6 +25,7 @@ list(APPEND WebCore_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/accessibility/atk"
     "${WEBCORE_DIR}/editing/atk"
     "${WEBCORE_DIR}/page/gtk"
+    "${WEBCORE_DIR}/page/scrolling/gtk"
     "${WEBCORE_DIR}/platform/cairo"
     "${WEBCORE_DIR}/platform/geoclue"
     "${WEBCORE_DIR}/platform/gtk"
@@ -231,6 +232,14 @@ list(APPEND WebCorePlatformGTK_SOURCES
     page/gtk/DragControllerGtk.cpp
     page/gtk/EventHandlerGtk.cpp
 
+    page/scrolling/gtk/ScrollingCoordinatorGtk.cpp
+    page/scrolling/gtk/ScrollingStateFrameScrollingNodeGtk.cpp
+    page/scrolling/gtk/ScrollingThreadGtk.cpp
+    page/scrolling/gtk/ScrollingTreeFixedNode.cpp
+    page/scrolling/gtk/ScrollingTreeFrameScrollingNodeGtk.cpp
+    page/scrolling/gtk/ScrollingTreeGtk.cpp
+    page/scrolling/gtk/ScrollingTreeStickyNode.cpp
+
     platform/graphics/PlatformDisplay.cpp
 
     platform/graphics/freetype/FontPlatformDataFreeType.cpp
@@ -255,6 +264,7 @@ list(APPEND WebCorePlatformGTK_SOURCES
     platform/gtk/PlatformMouseEventGtk.cpp
     platform/gtk/PlatformScreenGtk.cpp
     platform/gtk/PlatformWheelEventGtk.cpp
+    platform/gtk/ScrollController.cpp
     platform/gtk/ScrollbarThemeGtk.cpp
     platform/gtk/SoundGtk.cpp
     platform/gtk/WidgetGtk.cpp

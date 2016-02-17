@@ -347,7 +347,7 @@ void CoordinatedGraphicsScene::setLayerState(CoordinatedLayerID id, const Coordi
 
 TextureMapperLayer* CoordinatedGraphicsScene::getLayerByIDIfExists(CoordinatedLayerID id)
 {
-    return (id != InvalidCoordinatedLayerID) ? layerByID(id) : 0;
+    return (id != InvalidCoordinatedLayerID) ? layerByID(id) : nullptr;
 }
 
 void CoordinatedGraphicsScene::createLayers(const Vector<CoordinatedLayerID>& layerIDs)
@@ -695,6 +695,14 @@ void CoordinatedGraphicsScene::commitScrollOffset(uint32_t layerID, const IntSiz
         protector->dispatchCommitScrollOffset(layerID, offset);
     });
 }
+
+#if ENABLE(ASYNC_SCROLLING)
+void CoordinatedGraphicsScene::setLayerPosition(uint32_t layerID, const FloatPoint& p)
+{
+    if (TextureMapperLayer* layer = layerByID(layerID))
+        layer->setPosition(p);
+}
+#endif
 
 void CoordinatedGraphicsScene::purgeBackingStores()
 {

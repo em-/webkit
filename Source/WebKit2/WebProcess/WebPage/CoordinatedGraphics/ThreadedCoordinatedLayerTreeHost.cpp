@@ -296,6 +296,13 @@ void ThreadedCoordinatedLayerTreeHost::paintLayerContents(const GraphicsLayer*, 
 {
 }
 
+#if ENABLE(ASYNC_SCROLLING)
+void ThreadedCoordinatedLayerTreeHost::commitLayerPosition(uint32_t layerID, const FloatPoint& p)
+{
+    m_compositor->commitLayerPosition(layerID, p);
+}
+#endif
+
 } // namespace WebKit
 
 #endif // USE(COORDINATED_GRAPHICS)

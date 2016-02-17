@@ -50,6 +50,7 @@ ScrollingTree::~ScrollingTree()
 
 bool ScrollingTree::shouldHandleWheelEventSynchronously(const PlatformWheelEvent& wheelEvent)
 {
+#if PLATFORM(COCOA)
     // This method is invoked by the event handling thread
     LockHolder lock(m_mutex);
 
@@ -71,15 +72,23 @@ bool ScrollingTree::shouldHandleWheelEventSynchronously(const PlatformWheelEvent
         if (m_nonFastScrollableRegion.contains(roundedIntPoint(position)))
             return true;
     }
+#else
+    UNUSED_PARAM(wheelEvent);
+#endif
     return false;
 }
 
 void ScrollingTree::setOrClearLatchedNode(const PlatformWheelEvent& wheelEvent, ScrollingNodeID nodeID)
 {
+#if PLATFORM(COCOA)
     if (wheelEvent.shouldConsiderLatching())
         setLatchedNode(nodeID);
     else if (wheelEvent.shouldResetLatching())
         clearLatchedNode();
+#else
+    UNUSED_PARAM(wheelEvent);
+    UNUSED_PARAM(nodeID);
+#endif
 }
 
 void ScrollingTree::handleWheelEvent(const PlatformWheelEvent& wheelEvent)
@@ -326,6 +335,7 @@ ScrollPinningBehavior ScrollingTree::scrollPinningBehavior()
 
 bool ScrollingTree::willWheelEventStartSwipeGesture(const PlatformWheelEvent& wheelEvent)
 {
+#if PLATFORM(COCOA)
     if (wheelEvent.phase() != PlatformWheelEventPhaseBegan)
         return false;
 
@@ -339,7 +349,9 @@ bool ScrollingTree::willWheelEventStartSwipeGesture(const PlatformWheelEvent& wh
         return true;
     if (wheelEvent.deltaY() < 0 && m_mainFramePinnedToTheBottom && !m_rubberBandsAtBottom)
         return true;
-
+#else
+    UNUSED_PARAM(wheelEvent);
+#endif
     return false;
 }
 

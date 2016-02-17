@@ -42,10 +42,15 @@
 
 namespace WebCore {
 
+#if PLATFORM(GTK)
+class ScrollingRunLoop;
+#endif
+
 class ScrollingThread {
     WTF_MAKE_NONCOPYABLE(ScrollingThread);
-
 public:
+    virtual ~ScrollingThread();
+
     static bool isCurrentThread();
     WEBCORE_EXPORT static void dispatch(std::function<void ()>);
 
@@ -63,28 +68,33 @@ private:
     void createThreadIfNeeded();
     static void threadCallback(void* scrollingThread);
     void threadBody();
-    void dispatchFunctionsFromScrollingThread();
 
     void initializeRunLoop();
-    void wakeUpRunLoop();
 
 #if PLATFORM(COCOA)
+    void dispatchFunctionsFromScrollingThread();
+    void wakeUpRunLoop();
     static void threadRunLoopSourceCallback(void* scrollingThread);
     void threadRunLoopSourceCallback();
+#elif PLATFORM(GTK)
+    void terminateScrollingThread();
 #endif
 
     ThreadIdentifier m_threadIdentifier;
 
     Condition m_initializeRunLoopConditionVariable;
     Lock m_initializeRunLoopMutex;
-
     Lock m_functionsMutex;
-    Vector<std::function<void ()>> m_functions;
 
 #if PLATFORM(COCOA)
+    Vector<std::function<void ()>> m_functions;
     // FIXME: We should use WebCore::RunLoop here.
     RetainPtr<CFRunLoopRef> m_threadRunLoop;
     RetainPtr<CFRunLoopSourceRef> m_threadRunLoopSource;
+#elif PLATFORM(GTK)
+    Condition m_terminateRunLoopCondition;
+    Lock m_terminateRunLoopMutex;
+    std::unique_ptr<ScrollingRunLoop> m_threadRunLoop;
 #endif
 };
 

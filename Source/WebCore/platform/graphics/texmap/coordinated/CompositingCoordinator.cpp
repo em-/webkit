@@ -182,6 +182,13 @@ void CompositingCoordinator::syncLayerState(CoordinatedLayerID id, CoordinatedGr
     m_state.layersToUpdate.append(std::make_pair(id, state));
 }
 
+#if ENABLE(ASYNC_SCROLLING)
+void CompositingCoordinator::commitLayerPosition(CoordinatedLayerID layerID, const FloatPoint& p)
+{
+    m_client->commitLayerPosition(layerID, p);
+}
+#endif
+
 PassRefPtr<CoordinatedImageBacking> CompositingCoordinator::createImageBackingIfNeeded(Image* image)
 {
     CoordinatedImageBackingID imageID = CoordinatedImageBacking::getCoordinatedImageBackingID(image);

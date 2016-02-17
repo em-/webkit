@@ -54,6 +54,10 @@ public:
     virtual bool paintToSurface(const IntSize&, CoordinatedSurface::Flags, uint32_t& atlasID, IntPoint&, CoordinatedSurface::Client*) = 0;
 
     virtual void syncLayerState(CoordinatedLayerID, CoordinatedGraphicsLayerState&) = 0;
+
+#if ENABLE(ASYNC_SCROLLING)
+    virtual void commitLayerPosition(CoordinatedLayerID, const FloatPoint& offset) = 0;
+#endif
 };
 
 class CoordinatedGraphicsLayer : public GraphicsLayer
@@ -102,6 +106,7 @@ public:
     virtual void setNeedsDisplay() override;
     virtual void setNeedsDisplayInRect(const FloatRect&, ShouldClipToLayer = ClipToLayer) override;
     virtual void setContentsNeedsDisplay() override;
+    virtual void syncPosition(const FloatPoint&) override;
     virtual void deviceOrPageScaleFactorChanged() override;
     virtual void flushCompositingState(const FloatRect&, bool) override;
     virtual void flushCompositingStateForThisLayerOnly(bool) override;
@@ -142,6 +147,7 @@ public:
     virtual bool paintToSurface(const IntSize&, uint32_t& /* atlasID */, IntPoint&, CoordinatedSurface::Client*) override;
 
     void setCoordinator(CoordinatedGraphicsLayerClient*);
+    CoordinatedGraphicsLayerClient* coordinator() const { return m_coordinator; }
 
     void setNeedsVisibleRectAdjustment();
     void purgeBackingStores();

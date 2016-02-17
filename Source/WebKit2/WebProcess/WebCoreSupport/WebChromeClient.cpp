@@ -79,7 +79,7 @@
 #include "WebVideoFullscreenManager.h"
 #endif
 
-#if ENABLE(ASYNC_SCROLLING)
+#if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
 #include "RemoteScrollingCoordinator.h"
 #endif
 
@@ -842,8 +842,10 @@ bool WebChromeClient::layerTreeStateIsFrozen() const
 PassRefPtr<ScrollingCoordinator> WebChromeClient::createScrollingCoordinator(Page* page) const
 {
     ASSERT(m_page->corePage() == page);
+#if PLATFORM(COCOA)
     if (m_page->drawingArea()->type() == DrawingAreaTypeRemoteLayerTree)
         return RemoteScrollingCoordinator::create(m_page);
+#endif
 
     return 0;
 }

@@ -40,6 +40,10 @@ class GraphicsLayer;
 class ScrollingStateTree;
 class TextStream;
 
+#if USE(COORDINATED_GRAPHICS)
+class CoordinatedGraphicsLayerClient;
+#endif
+
 // Used to allow ScrollingStateNodes to refer to layers in various contexts:
 // a) Async scrolling, main thread: ScrollingStateNode holds onto a GraphicsLayer, and uses m_layerID
 //    to detect whether that GraphicsLayer's underlying PlatformLayer changed.
@@ -234,6 +238,13 @@ public:
 
     String scrollingStateTreeAsText() const;
 
+#if USE(COORDINATED_GRAPHICS)
+    CoordinatedGraphicsLayerClient* compositingCoordinator() const { return m_compositingCoordinator; }
+    void setCompositingCoordinator(CoordinatedGraphicsLayerClient* compositingCoordinator) { m_compositingCoordinator = compositingCoordinator; }
+    FloatPoint layerPosition() const { return m_layerPosition; }
+    void setLayerPosition(const FloatPoint& position) { m_layerPosition = position; }
+#endif
+
 protected:
     ScrollingStateNode(const ScrollingStateNode&, ScrollingStateTree&);
 
@@ -252,6 +263,11 @@ private:
     std::unique_ptr<Vector<RefPtr<ScrollingStateNode>>> m_children;
 
     LayerRepresentation m_layer;
+
+#if USE(COORDINATED_GRAPHICS)
+    CoordinatedGraphicsLayerClient* m_compositingCoordinator;
+    FloatPoint m_layerPosition;
+#endif
 };
 
 } // namespace WebCore

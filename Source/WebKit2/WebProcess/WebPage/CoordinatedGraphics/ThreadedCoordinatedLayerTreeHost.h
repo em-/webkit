@@ -126,6 +126,9 @@ private:
     virtual void notifyFlushRequired() override;
     virtual void commitSceneState(const WebCore::CoordinatedGraphicsState&) override;
     virtual void paintLayerContents(const WebCore::GraphicsLayer*, WebCore::GraphicsContext&, const WebCore::IntRect& clipRect) override;
+#if ENABLE(ASYNC_SCROLLING)
+    virtual void commitLayerPosition(uint32_t layerID, const WebCore::FloatPoint&) override;
+#endif
 
     LayerTreeContext m_layerTreeContext;
     uint64_t m_forceRepaintAsyncCallbackID;

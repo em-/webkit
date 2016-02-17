@@ -116,6 +116,9 @@ public:
 #if PLATFORM(MAC)
     ScrollbarPainter verticalScrollbarPainter() const { return m_verticalScrollbarPainter.get(); }
     ScrollbarPainter horizontalScrollbarPainter() const { return m_horizontalScrollbarPainter.get(); }
+#elif PLATFORM(GTK)
+    Scrollbar* verticalScrollbar() const { return m_verticalScrollbar; }
+    Scrollbar* horizontalScrollbar() const { return m_horizontalScrollbar; }
 #endif
     void setScrollbarPaintersFromScrollbars(Scrollbar* verticalScrollbar, Scrollbar* horizontalScrollbar);
 
@@ -135,6 +138,9 @@ private:
 #if PLATFORM(MAC)
     RetainPtr<ScrollbarPainter> m_verticalScrollbarPainter;
     RetainPtr<ScrollbarPainter> m_horizontalScrollbarPainter;
+#elif PLATFORM(GTK)
+    Scrollbar* m_verticalScrollbar;
+    Scrollbar* m_horizontalScrollbar;
 #endif
 
     Region m_nonFastScrollableRegion;

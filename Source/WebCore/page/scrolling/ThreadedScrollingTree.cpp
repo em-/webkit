@@ -113,6 +113,7 @@ void ThreadedScrollingTree::scrollingTreeNodeDidScroll(ScrollingNodeID nodeID, c
 
 void ThreadedScrollingTree::currentSnapPointIndicesDidChange(ScrollingNodeID nodeID, unsigned horizontal, unsigned vertical)
 {
+#if PLATFORM(MAC)
     if (!m_scrollingCoordinator)
         return;
 
@@ -120,6 +121,11 @@ void ThreadedScrollingTree::currentSnapPointIndicesDidChange(ScrollingNodeID nod
     RunLoop::main().dispatch([scrollingCoordinator, nodeID, horizontal, vertical] {
         scrollingCoordinator->setActiveScrollSnapIndices(nodeID, horizontal, vertical);
     });
+#else
+    UNUSED_PARAM(nodeID);
+    UNUSED_PARAM(horizontal);
+    UNUSED_PARAM(vertical);
+#endif
 }
 
 #if PLATFORM(MAC)
@@ -166,7 +172,6 @@ void ThreadedScrollingTree::removeTestDeferralForReason(WheelEventTestTrigger::S
         scrollingCoordinator->removeTestDeferralForReason(identifier, reason);
     });
 }
-
 #endif
 
 } // namespace WebCore

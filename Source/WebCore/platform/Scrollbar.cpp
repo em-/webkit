@@ -482,6 +482,9 @@ bool Scrollbar::supportsUpdateOnSecondaryThread() const
     return !m_scrollableArea.forceUpdateScrollbarsOnMainThreadForPerformanceTesting()
         && (m_scrollableArea.hasLayerForVerticalScrollbar() || m_scrollableArea.hasLayerForHorizontalScrollbar())
         && m_scrollableArea.usesAsyncScrolling();
+#elif ENABLE(ASYNC_SCROLLING) && PLATFORM(GTK)
+    return !m_scrollableArea.forceUpdateScrollbarsOnMainThreadForPerformanceTesting()
+        && m_scrollableArea.usesAsyncScrolling();
 #else
     return false;
 #endif

@@ -77,6 +77,10 @@ public:
     void scrollTo(const WebCore::IntPoint&);
     void scrollBy(const WebCore::IntSize&);
 
+#if ENABLE(ASYNC_SCROLLING)
+    void commitLayerPosition(uint32_t layerID, const WebCore::FloatPoint&);
+#endif
+
 private:
     ThreadedCompositor(Client*);
 

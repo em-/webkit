@@ -213,6 +213,17 @@ void ThreadedCompositor::commitScrollOffset(uint32_t layerID, const IntSize& off
     m_client->commitScrollOffset(layerID, offset);
 }
 
+#if ENABLE(ASYNC_SCROLLING)
+void ThreadedCompositor::commitLayerPosition(uint32_t layerID, const FloatPoint& position)
+{
+    RefPtr<CoordinatedGraphicsScene> scene = m_scene;
+    m_scene->appendUpdate([scene, layerID, position] {
+        scene->setLayerPosition(layerID, position);
+    });
+    setNeedsDisplay();
+}
+#endif
+
 bool ThreadedCompositor::ensureGLContext()
 {
     if (!glContext())

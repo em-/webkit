@@ -395,6 +395,15 @@ void CoordinatedGraphicsLayer::setContentsNeedsDisplay()
     addRepaintRect(contentsRect());
 }
 
+void CoordinatedGraphicsLayer::syncPosition(const FloatPoint& p)
+{
+    if (position() == p)
+        return;
+
+    GraphicsLayer::syncPosition(p);
+    setShouldUpdateVisibleRect();
+}
+
 void CoordinatedGraphicsLayer::setContentsToPlatformLayer(PlatformLayer* platformLayer, ContentsLayerPurpose)
 {
 #if USE(GRAPHICS_SURFACE)
