@@ -43,6 +43,9 @@ void WebPreferences::platformInitializeStore()
         setPluginsEnabled(false);
     }
 #endif
+#if USE(COORDINATED_GRAPHICS_THREADED)
+    setForceCompositingMode(true);
+#endif
 #if !ENABLE(OPENGL)
     setAcceleratedCompositingEnabled(false);
 #else
