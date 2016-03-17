@@ -1,11 +1,16 @@
 include $(srcdir)/Source/WebCore/GNUmakefile.list.am
 
 #if TARGET_WAYLAND
-Source/WebCore/platform/gtk/WaylandWebkitGtk%:
+$(GENSOURCES_PLATFORM)/WaylandWebkitGtk%:
 	$(AM_V_GEN)
-	$(AM_V_at)wayland-scanner server-header < $(WebCore)/platform/gtk/wl-wkgtk.xml > $(WebCore)/platform/gtk/WaylandWebkitGtkServerProtocol.h
-	$(AM_V_at)wayland-scanner client-header < $(WebCore)/platform/gtk/wl-wkgtk.xml > $(WebCore)/platform/gtk/WaylandWebkitGtkClientProtocol.h
-	$(AM_V_at)wayland-scanner code < $(WebCore)/platform/gtk/wl-wkgtk.xml > $(WebCore)/platform/gtk/WaylandWebkitGtkProtocol.c
+	$(AM_V_at)wayland-scanner server-header < $(WebCore)/platform/gtk/wl-wkgtk.xml > $(GENSOURCES_PLATFORM)/WaylandWebkitGtkServerProtocol.h
+	$(AM_V_at)wayland-scanner client-header < $(WebCore)/platform/gtk/wl-wkgtk.xml > $(GENSOURCES_PLATFORM)/WaylandWebkitGtkClientProtocol.h
+	$(AM_V_at)wayland-scanner code < $(WebCore)/platform/gtk/wl-wkgtk.xml > $(GENSOURCES_PLATFORM)/WaylandWebkitGtkProtocol.c
+
+BUILT_SOURCES += \
+	$(GENSOURCES_PLATFORM)/WaylandWebkitGtkServerProtocol.h \
+	$(GENSOURCES_PLATFORM)/WaylandWebkitGtkClientProtocol.h \
+	$(GENSOURCES_PLATFORM)/WaylandWebkitGtkProtocol.c
 #endif
 
 WEBCORE_CSS_PROPERTY_NAMES := $(WebCore)/css/CSSPropertyNames.in

@@ -6295,10 +6295,12 @@ platformgtk_sources += \
 	Source/WebCore/platform/gtk/WaylandDisplay.cpp \
 	Source/WebCore/platform/gtk/WaylandDisplay.h \
 	Source/WebCore/platform/gtk/WaylandSurface.cpp \
-	Source/WebCore/platform/gtk/WaylandSurface.h \
-	Source/WebCore/platform/gtk/WaylandWebkitGtkServerProtocol.h \
-	Source/WebCore/platform/gtk/WaylandWebkitGtkClientProtocol.h \
-	Source/WebCore/platform/gtk/WaylandWebkitGtkProtocol.c
+	Source/WebCore/platform/gtk/WaylandSurface.h
+
+platform_built_sources += \
+    DerivedSources/Platform/WaylandWebkitGtkServerProtocol.h \
+	DerivedSources/Platform/WaylandWebkitGtkClientProtocol.h \
+	DerivedSources/Platform/WaylandWebkitGtkProtocol.c
 endif # END USE_OPENGL
 if USE_EGL
 webcoregtk_sources += \
