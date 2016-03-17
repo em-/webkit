@@ -74,10 +74,9 @@
       <dep package="pixman"/>
       <dep package="glib"/>
     </dependencies>
-    <branch module="releases/cairo-1.12.8.tar.xz" version="1.12.8"
+    <branch module="releases/cairo-1.14.6.tar.xz" version="1.14.6"
             repo="cairographics.org"
-            hash="sha256:8fbb6fc66117ab4100bad830cb4479497e53c6f3facb98bf05c8d298554ebdd9"
-            md5sum="8b3dcade859c44fb7e56fc68edfe9a45">
+            hash="sha1:0a59324e6cbe031b5b898ff8b9e2ffceb9d114f5">
     </branch>
   </autotools>
 
