@@ -44,6 +44,10 @@
 #include <WebCore/Page.h>
 #include <wtf/CurrentTime.h>
 
+#if USE(NESTED_COMPOSITOR)
+#include <WebCore/PlatformDisplayWayland.h>
+#endif
+
 using namespace WebCore;
 
 namespace WebKit {
@@ -173,6 +177,10 @@ GraphicsLayerFactory* ThreadedCoordinatedLayerTreeHost::graphicsLayerFactory()
 
 void ThreadedCoordinatedLayerTreeHost::viewportSizeChanged(const WebCore::IntSize& size)
 {
+#if USE(NESTED_COMPOSITOR)
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland && m_layerTreeContext.contextID)
+        wl_egl_window_resize(reinterpret_cast<GLNativeWindowType>(m_layerTreeContext.contextID), size.width(), size.height(), 0, 0);
+#endif
     m_compositor->didChangeViewportSize(size);
 }
 
@@ -208,6 +216,15 @@ void ThreadedCoordinatedLayerTreeHost::setViewOverlayRootLayer(GraphicsLayer* vi
 #if PLATFORM(GTK)
 void ThreadedCoordinatedLayerTreeHost::setNativeSurfaceHandleForCompositing(uint64_t handle)
 {
+#if USE(NESTED_COMPOSITOR)
+    auto& sharedDisplay = PlatformDisplay::sharedDisplay();
+    if (sharedDisplay.type() == PlatformDisplay::Type::Wayland) {
+            // Request a wayland surface from the nested wayland compositor
+            IntSize webPageSize = m_webPage->size();
+            m_wlSurface = downcast<PlatformDisplayWayland>(sharedDisplay).createSurface(webPageSize, handle);
+            handle = reinterpret_cast<uint64_t>(m_wlSurface ? m_wlSurface->nativeWindowHandle() : 0);
+    }
+#endif
     m_layerTreeContext.contextID = handle;
     m_compositor->setNativeSurfaceHandleForCompositing(handle);
 }

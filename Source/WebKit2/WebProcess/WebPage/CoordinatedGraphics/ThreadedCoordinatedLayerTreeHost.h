@@ -44,6 +44,10 @@
 #include <wtf/RunLoop.h>
 #include <wtf/Threading.h>
 
+#if USE(NESTED_COMPOSITOR)
+#include <WebCore/WaylandSurface.h>
+#endif
+
 namespace WebCore {
 class CoordinatedSurface;
 class GraphicsContext;
@@ -129,6 +133,8 @@ private:
 
     LayerTreeContext m_layerTreeContext;
     uint64_t m_forceRepaintAsyncCallbackID;
+
+    std::unique_ptr<WebCore::WaylandSurface> m_wlSurface;
 
     WebCore::IntPoint m_prevScrollPosition;
 
