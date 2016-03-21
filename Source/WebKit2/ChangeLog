@@ -1,3 +1,59 @@
+2016-03-21  Iago Toral Quiroga  <itoral@igalia.com>
+
+        [GTK] Add nested wayland compositor in the UIProcess
+        https://bugs.webkit.org/show_bug.cgi?id=115803
+
+        Reviewed by NOBODY (OOPS!).
+
+        Add the WaylandCompositor class, which implements a nested Wayland
+        compositor that will be used to efficiently share AC surfaces from
+        WebProcess to the UIProcess.
+
+        The nested compositor is an internal implementation detail, and it
+        implements only minimal support for Wayland features, eg. no provision
+        for input handling is offered as that is already handled by the usual
+        WebKit2 IPC system.
+
+        A nested compositor has been chosen over directly fiddling with DRM
+        objects because the Wayland protocol is the only way we're guaranteed
+        that there's an efficient way to share surfaces and import them as GL
+        textures in the UIProcess, even on embedded GPUs with weird
+        requirements or proprietary stacks.
+
+        The nested compositor should also be able to provide a better
+        performing alternative to RedirectedXCompositeWindow under X11.
+
+        * PlatformGTK.cmake:
+        * UIProcess/gtk/WaylandCompositor.cpp: Added.
+        (WebKit::WaylandCompositor::supportsRequiredExtensions):
+        (WebKit::WaylandCompositor::shutdownEGL):
+        (WebKit::WaylandCompositor::initEGL):
+        (WebKit::WaylandCompositor::createNestedDisplay):
+        (WebKit::WaylandCompositor::destroyNestedDisplay):
+        (WebKit::WaylandCompositor::destroyNestedFrameCallback):
+        (WebKit::WaylandCompositor::surfaceDestroy):
+        (WebKit::WaylandCompositor::surfaceAttach):
+        (WebKit::WaylandCompositor::surfaceDamage):
+        (WebKit::WaylandCompositor::surfaceFrame):
+        (WebKit::WaylandCompositor::surfaceSetOpaqueRegion):
+        (WebKit::WaylandCompositor::surfaceSetInputRegion):
+        (WebKit::WaylandCompositor::surfaceCommit):
+        (WebKit::WaylandCompositor::surfaceSetBufferTransform):
+        (WebKit::WaylandCompositor::surfaceSetBufferScale):
+        (WebKit::WaylandCompositor::doDestroyNestedSurface):
+        (WebKit::WaylandCompositor::destroyNestedSurface):
+        (WebKit::WaylandCompositor::createSurface):
+        (WebKit::WaylandCompositor::createRegion):
+        (WebKit::WaylandCompositor::compositorBind):
+        (WebKit::WaylandCompositor::initialize):
+        (WebKit::WaylandCompositor::instance):
+        (WebKit::WaylandCompositor::WaylandCompositor):
+        (WebKit::WaylandCompositor::~WaylandCompositor):
+        (WebKit::WaylandCompositor::addWidget):
+        (WebKit::WaylandCompositor::cairoSurfaceForWidget):
+        (WebKit::WaylandCompositor::nextFrame):
+        * UIProcess/gtk/WaylandCompositor.h: Added.
+
 2016-04-14  Alex Christensen  <achristensen@webkit.org>
 
         Fix build without IndexedDB.
