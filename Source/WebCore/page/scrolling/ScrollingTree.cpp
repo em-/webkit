@@ -50,7 +50,6 @@ ScrollingTree::~ScrollingTree()
 
 bool ScrollingTree::shouldHandleWheelEventSynchronously(const PlatformWheelEvent& wheelEvent)
 {
-#if PLATFORM(COCOA)
     // This method is invoked by the event handling thread
     LockHolder lock(m_mutex);
 
@@ -72,9 +71,7 @@ bool ScrollingTree::shouldHandleWheelEventSynchronously(const PlatformWheelEvent
         if (m_nonFastScrollableRegion.contains(roundedIntPoint(position)))
             return true;
     }
-#else
-    UNUSED_PARAM(wheelEvent);
-#endif
+
     return false;
 }
 

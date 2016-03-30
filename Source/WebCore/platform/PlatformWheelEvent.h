@@ -188,7 +188,7 @@ namespace WebCore {
 #endif
     };
 
-#if PLATFORM(COCOA)
+#if PLATFORM(COCOA) || PLATFORM(GTK)
     inline bool PlatformWheelEvent::useLatchedEventElement() const
     {
         return m_phase == PlatformWheelEventPhaseBegan || m_phase == PlatformWheelEventPhaseChanged
