@@ -42,9 +42,12 @@
 
 #include <WebCore/FrameView.h>
 #include <WebCore/GLContext.h>
+#include <WebCore/GLContextEGL.h>
 #include <WebCore/GraphicsLayerTextureMapper.h>
 #include <WebCore/MainFrame.h>
 #include <WebCore/Page.h>
+#include <WebCore/PlatformDisplay.h>
+#include <WebCore/PlatformDisplayWayland.h>
 #include <WebCore/Settings.h>
 #include <wtf/CurrentTime.h>
 
@@ -228,6 +231,9 @@ void LayerTreeHostGtk::invalidate()
     m_rootLayer = nullptr;
     m_nonCompositedContentLayer = nullptr;
     m_textureMapper = nullptr;
+#if USE(NESTED_COMPOSITOR)
+    m_wlSurface = nullptr;
+#endif
 
     m_context = nullptr;
     m_isValid = false;
@@ -255,6 +261,11 @@ void LayerTreeHostGtk::sizeDidChange(const IntSize& newSize)
     if (m_rootLayer->size() == newSize)
         return;
     m_rootLayer->setSize(newSize);
+
+#if USE(NESTED_COMPOSITOR)
+    if (PlatformDisplay::sharedDisplay().type() != PlatformDisplay::Type::Wayland)
+        wl_egl_window_resize(reinterpret_cast<GLNativeWindowType>(m_layerTreeContext.contextID), newSize.width(), newSize.height(), 0, 0);
+#endif
 
     // If the newSize exposes new areas of the non-composited content a setNeedsDisplay is needed
     // for those newly exposed areas.
@@ -330,6 +341,7 @@ void LayerTreeHostGtk::compositeLayersToContext(CompositePurpose purpose)
 {
     if (!makeContextCurrent())
         return;
+    ASSERT(GLContext::getCurrent()->platformContext() == static_cast<TextureMapperGL*>(m_textureMapper.get())->graphicsContext3D()->platformGraphicsContext3D());
 
     // The window size may be out of sync with the page size at this point, and getting
     // the viewport parameters incorrect, means that the content will be misplaced. Thus
@@ -419,6 +431,22 @@ void LayerTreeHostGtk::setViewOverlayRootLayer(WebCore::GraphicsLayer* viewOverl
 void LayerTreeHostGtk::setNativeSurfaceHandleForCompositing(uint64_t handle)
 {
     cancelPendingLayerFlush();
+
+    if (!handle) {
+        invalidate();
+        return;
+    }
+
+#if USE(NESTED_COMPOSITOR)
+    auto& sharedDisplay = PlatformDisplay::sharedDisplay();
+    if (sharedDisplay.type() == PlatformDisplay::Type::Wayland) {
+        // Request a wayland surface from the nested wayland compositor
+        IntSize webPageSize = m_webPage->size();
+        m_wlSurface = downcast<PlatformDisplayWayland>(sharedDisplay).createSurface(webPageSize, handle);
+        handle = reinterpret_cast<uint64_t>(m_wlSurface ? m_wlSurface->nativeWindowHandle() : 0);
+    }
+#endif
+
     m_layerTreeContext.contextID = handle;
 
     // The creation of the TextureMapper needs an active OpenGL context.

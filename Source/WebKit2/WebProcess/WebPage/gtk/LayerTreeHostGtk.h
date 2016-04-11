@@ -37,6 +37,10 @@
 #include <WebCore/TransformationMatrix.h>
 #include <wtf/RunLoop.h>
 
+#if USE(NESTED_COMPOSITOR)
+#include <WebCore/WaylandSurface.h>
+#endif
+
 namespace WebKit {
 
 class LayerTreeHostGtk final : public LayerTreeHost, WebCore::GraphicsLayerClient {
@@ -121,6 +125,10 @@ private:
     WebCore::GraphicsLayer* m_viewOverlayRootLayer;
     WebCore::TransformationMatrix m_scaleMatrix;
     RenderFrameScheduler m_renderFrameScheduler;
+
+#if USE(NESTED_COMPOSITOR)
+    std::unique_ptr<WebCore::WaylandSurface> m_wlSurface;
+#endif
 };
 
 } // namespace WebKit

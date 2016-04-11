@@ -133,6 +133,7 @@ list(APPEND WebCore_SOURCES
     platform/graphics/harfbuzz/HarfBuzzShaper.cpp
 
     platform/graphics/opengl/Extensions3DOpenGLCommon.cpp
+    platform/graphics/opengl/GLPlatformContext.cpp
     platform/graphics/opengl/GraphicsContext3DOpenGLCommon.cpp
     platform/graphics/opengl/TemporaryOpenGLSetting.cpp
 
@@ -305,6 +306,17 @@ list(APPEND WebCore_SYSTEM_INCLUDE_DIRECTORIES
     ${ZLIB_INCLUDE_DIRS}
 )
 
+if (USE_EGL)
+    list(APPEND WebCore_INCLUDE_DIRECTORIES
+        "${WEBCORE_DIR}/platform/graphics/surfaces/egl"
+    )
+endif ()
+
+if (USE_EGL)
+    list(APPEND WebCore_SOURCES
+        platform/graphics/surfaces/egl/EGLHelper.cpp
+    )
+endif ()
 if (USE_OPENGL_ES_2)
     list(APPEND WebCore_SOURCES
         platform/graphics/opengl/Extensions3DOpenGLES.cpp

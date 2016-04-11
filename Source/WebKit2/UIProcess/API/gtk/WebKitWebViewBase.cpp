@@ -39,6 +39,7 @@
 #include "PageClientImpl.h"
 #include "RedirectedXCompositeWindow.h"
 #include "ViewState.h"
+#include "WaylandCompositor.h"
 #include "WebEventFactory.h"
 #include "WebFullScreenClientGtk.h"
 #include "WebInspectorProxy.h"
@@ -151,6 +152,9 @@ typedef HashMap<uint32_t, GUniquePtr<GdkEvent>> TouchEventsMap;
 struct _WebKitWebViewBasePrivate {
     _WebKitWebViewBasePrivate()
         : updateViewStateTimer(RunLoop::main(), this, &_WebKitWebViewBasePrivate::updateViewStateTimerFired)
+#if USE(NESTED_COMPOSITOR)
+        , waylandCompositor(nullptr)
+#endif
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
         , clearRedirectedWindowSoonTimer(RunLoop::main(), this, &_WebKitWebViewBasePrivate::clearRedirectedWindowSoonTimerFired)
 #endif
@@ -210,6 +214,10 @@ struct _WebKitWebViewBasePrivate {
     GRefPtr<GDBusProxy> screenSaverProxy;
     GRefPtr<GCancellable> screenSaverInhibitCancellable;
     unsigned screenSaverCookie;
+#endif
+
+#if USE(NESTED_COMPOSITOR)
+    WaylandCompositor* waylandCompositor;
 #endif
 
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
@@ -357,6 +365,16 @@ static void webkitWebViewBaseRealize(GtkWidget* widget)
     WebKitWebViewBase* webView = WEBKIT_WEB_VIEW_BASE(widget);
     WebKitWebViewBasePrivate* priv = webView->priv;
 
+#if USE(NESTED_COMPOSITOR)
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
+        priv->waylandCompositor = WaylandCompositor::instance();
+        if (priv->waylandCompositor)
+            priv->waylandCompositor->addWidget(widget);
+            if (DrawingAreaProxyImpl* drawingArea = static_cast<DrawingAreaProxyImpl*>(priv->pageProxy->drawingArea()))
+                drawingArea->setNativeSurfaceHandleForCompositing(priv->waylandCompositor->getWidgetId(widget));
+    }
+#endif
+
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
     if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::X11) {
         ASSERT(!priv->redirectedWindow);
@@ -423,9 +441,13 @@ static void webkitWebViewBaseRealize(GtkWidget* widget)
 static void webkitWebViewBaseUnrealize(GtkWidget* widget)
 {
     WebKitWebViewBase* webView = WEBKIT_WEB_VIEW_BASE(widget);
-#if USE(TEXTURE_MAPPER) && PLATFORM(X11)
+#if USE(TEXTURE_MAPPER)
     if (DrawingAreaProxyImpl* drawingArea = static_cast<DrawingAreaProxyImpl*>(webView->priv->pageProxy->drawingArea()))
         drawingArea->destroyNativeSurfaceHandleForCompositing();
+#endif
+#if USE(NESTED_COMPOSITOR)
+    if (webView->priv->waylandCompositor)
+        webView->priv->waylandCompositor->removeWidget(widget);
 #endif
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
     webView->priv->redirectedWindow = nullptr;
@@ -561,7 +583,7 @@ static void webkitWebViewBaseConstructed(GObject* object)
 
 static bool webkitWebViewRenderAcceleratedCompositingResults(WebKitWebViewBase* webViewBase, DrawingAreaProxyImpl* drawingArea, cairo_t* cr, GdkRectangle* clipRect)
 {
-#if USE(TEXTURE_MAPPER) && USE(REDIRECTED_XCOMPOSITE_WINDOW)
+#if USE(TEXTURE_MAPPER) && (USE(REDIRECTED_XCOMPOSITE_WINDOW) || USE(NESTED_COMPOSITOR))
     ASSERT(drawingArea);
 
     if (!drawingArea->isInAcceleratedCompositingMode())
@@ -569,14 +591,28 @@ static bool webkitWebViewRenderAcceleratedCompositingResults(WebKitWebViewBase* 
 
     // To avoid flashes when initializing accelerated compositing for the first
     // time, we wait until we know there's a frame ready before rendering.
+    cairo_surface_t* surface = nullptr;
     WebKitWebViewBasePrivate* priv = webViewBase->priv;
-    if (!priv->redirectedWindow)
-        return false;
 
-    priv->redirectedWindow->setDeviceScaleFactor(webViewBase->priv->pageProxy->deviceScaleFactor());
-    priv->redirectedWindow->resize(drawingArea->size());
+#if USE(NESTED_COMPOSITOR)
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
+        if (!priv->waylandCompositor)
+            return false;
+        surface = priv->waylandCompositor->cairoSurfaceForWidget(GTK_WIDGET(webViewBase));
+    }
+#endif
+#if USE(REDIRECTED_XCOMPOSITE_WINDOW)
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::X11) {
+        if (!priv->redirectedWindow)
+            return false;
 
-    if (cairo_surface_t* surface = priv->redirectedWindow->surface()) {
+        priv->redirectedWindow->setDeviceScaleFactor(webViewBase->priv->pageProxy->deviceScaleFactor());
+        priv->redirectedWindow->resize(drawingArea->size());
+        surface = priv->redirectedWindow->surface();
+    }
+#endif
+
+    if (surface) {
         cairo_save(cr);
         cairo_rectangle(cr, clipRect->x, clipRect->y, clipRect->width, clipRect->height);
         cairo_set_source_surface(cr, surface, 0, 0);
@@ -1559,24 +1595,30 @@ void webkitWebViewBaseDidRelaunchWebProcess(WebKitWebViewBase* webkitWebViewBase
     // Queue a resize to ensure the new DrawingAreaProxy is resized.
     gtk_widget_queue_resize_no_redraw(GTK_WIDGET(webkitWebViewBase));
 
-#if PLATFORM(X11) && USE(TEXTURE_MAPPER)
-    if (PlatformDisplay::sharedDisplay().type() != PlatformDisplay::Type::X11)
-        return;
-
+#if USE(TEXTURE_MAPPER)
     WebKitWebViewBasePrivate* priv = webkitWebViewBase->priv;
     DrawingAreaProxyImpl* drawingArea = static_cast<DrawingAreaProxyImpl*>(priv->pageProxy->drawingArea());
     ASSERT(drawingArea);
+
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::X11) {
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
-    if (!priv->redirectedWindow)
-        return;
-    uint64_t windowID = priv->redirectedWindow->windowID();
+        if (!priv->redirectedWindow)
+            return;
+        uint64_t windowID = priv->redirectedWindow->windowID();
 #else
-    if (!gtk_widget_get_realized(GTK_WIDGET(webkitWebViewBase)))
-        return;
-    uint64_t windowID = GDK_WINDOW_XID(gtk_widget_get_window(GTK_WIDGET(webkitWebViewBase)));
+        if (!gtk_widget_get_realized(GTK_WIDGET(webkitWebViewBase)))
+            return;
+        uint64_t windowID = GDK_WINDOW_XID(gtk_widget_get_window(GTK_WIDGET(webkitWebViewBase)));
 #endif
-    drawingArea->setNativeSurfaceHandleForCompositing(windowID);
-#else
-    UNUSED_PARAM(webkitWebViewBase);
+        drawingArea->setNativeSurfaceHandleForCompositing(windowID);
+    }
+
+#if USE(NESTED_COMPOSITOR)
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
+        uint64_t surfaceID = priv->waylandCompositor->getWidgetId(GTK_WIDGET(webkitWebViewBase));
+        drawingArea->setNativeSurfaceHandleForCompositing(surfaceID);
+    }
 #endif
+
+#endif // USE(TEXTURE_MAPPER)
 }

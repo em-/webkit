@@ -76,6 +76,8 @@ std::unique_ptr<PlatformDisplayWayland> PlatformDisplayWayland::create()
 PlatformDisplayWayland::PlatformDisplayWayland(struct wl_display* wlDisplay)
     : m_display(wlDisplay)
     , m_registry(wl_display_get_registry(m_display))
+    , m_compositor(nullptr)
+    , m_webkitgtk(nullptr)
     , m_eglConfigChosen(false)
 {
     wl_registry_add_listener(m_registry, &m_registryListener, this);

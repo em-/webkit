@@ -114,10 +114,12 @@ void GLContext::cleanupActiveContextsAtExit()
 
 std::unique_ptr<GLContext> GLContext::createContextForWindow(GLNativeWindowType windowHandle, GLContext* sharingContext)
 {
-#if PLATFORM(WAYLAND) && USE(EGL)
+#if PLATFORM(WAYLAND)
     if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
+#if USE(EGL)
         if (auto eglContext = GLContextEGL::createContext(windowHandle, sharingContext))
             return WTFMove(eglContext);
+#endif
         return nullptr;
     }
 #endif

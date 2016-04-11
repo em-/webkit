@@ -32,6 +32,7 @@
 #include <WebCore/AuthenticationChallenge.h>
 #include <WebCore/FileSystem.h>
 #include <WebCore/NetworkingContext.h>
+#include <WebCore/PlatformDisplay.h>
 #include <WebCore/ResourceHandle.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -107,6 +108,7 @@ void ProcessLauncher::launchProcess()
 #endif
 
     char** argv = g_newa(char*, nargs);
+    char** envp = g_get_environ();
     unsigned i = 0;
 #ifndef NDEBUG
     // If there's a prefix command, put it before the rest of the args.
@@ -118,11 +120,18 @@ void ProcessLauncher::launchProcess()
     argv[i++] = const_cast<char*>(realPluginPath.data());
     argv[i++] = 0;
 
+#if USE(NESTED_COMPOSITOR)
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland)
+        envp = g_environ_setenv(envp, "WAYLAND_DISPLAY", "webkitgtk-wayland-compositor-socket", TRUE);
+#endif
+
     GUniqueOutPtr<GError> error;
-    if (!g_spawn_async(0, argv, 0, G_SPAWN_LEAVE_DESCRIPTORS_OPEN, childSetupFunction, GINT_TO_POINTER(socketPair.server), &pid, &error.outPtr())) {
+    if (!g_spawn_async(0, argv, envp, G_SPAWN_LEAVE_DESCRIPTORS_OPEN, childSetupFunction, GINT_TO_POINTER(socketPair.server), &pid, &error.outPtr())) {
         g_printerr("Unable to fork a new WebProcess: %s.\n", error->message);
         ASSERT_NOT_REACHED();
     }
+
+    g_strfreev(envp);
 
     // Don't expose the parent socket to potential future children.
     while (fcntl(socketPair.client, F_SETFD, FD_CLOEXEC) == -1)
