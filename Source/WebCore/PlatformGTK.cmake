@@ -469,6 +469,8 @@ endif ()
 
 if (USE_OPENGL_ES_2)
     list(APPEND WebCore_SOURCES
+        platform/graphics/OpenGLShims.cpp
+
         platform/graphics/opengl/Extensions3DOpenGLES.cpp
         platform/graphics/opengl/GraphicsContext3DOpenGLES.cpp
     )

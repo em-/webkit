@@ -27,6 +27,7 @@
 #define Logging_h
 
 #include <functional>
+#include <WebCore/TextStream.h>
 #include <wtf/Assertions.h>
 #include <wtf/Forward.h>
 

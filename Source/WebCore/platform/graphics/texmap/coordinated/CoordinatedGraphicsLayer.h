@@ -154,6 +154,8 @@ public:
 
     CoordinatedGraphicsLayer* findFirstDescendantWithContentsRecursively();
 
+    virtual bool isCoordinatedGraphicsLayer() const override { return true; }
+
 private:
 #if USE(GRAPHICS_SURFACE)
     enum PendingPlatformLayerOperation {
@@ -264,6 +266,9 @@ private:
 CoordinatedGraphicsLayer* toCoordinatedGraphicsLayer(GraphicsLayer*);
 
 } // namespace WebCore
+
+SPECIALIZE_TYPE_TRAITS_GRAPHICSLAYER(WebCore::CoordinatedGraphicsLayer, isCoordinatedGraphicsLayer())
+
 #endif // USE(COORDINATED_GRAPHICS)
 
 #endif // CoordinatedGraphicsLayer_h
