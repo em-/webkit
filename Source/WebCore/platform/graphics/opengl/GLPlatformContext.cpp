@@ -28,15 +28,19 @@
 #if ENABLE(GRAPHICS_CONTEXT_3D)
 #include "GLPlatformContext.h"
 
+#if USE(GRAPHICS_SURFACE)
 #if USE(GLX)
 #include "GLXContext.h"
 #elif USE(EGL)
 #include "EGLContext.h"
 #endif
+#endif //USE(GRAPHICS_SURFACE)
 
 #include "NotImplemented.h"
 
 namespace WebCore {
+
+#if USE(GRAPHICS_SURFACE)
 
 #if USE(OPENGL_ES_2)
 static PFNGLGETGRAPHICSRESETSTATUSEXTPROC glGetGraphicsResetStatus = 0;
@@ -76,6 +80,8 @@ static std::unique_ptr<GLPlatformContext> createOffScreenContext()
 #endif
 }
 
+#endif // USE(GRAPHICS_SURFACE)
+
 static HashSet<String> parseExtensions(const String& extensionsString)
 {
     Vector<String> extNames;
@@ -88,6 +94,8 @@ static HashSet<String> parseExtensions(const String& extensionsString)
 
     return splitExtNames;
 }
+
+#if USE(GRAPHICS_SURFACE)
 
 static void resolveResetStatusExtension()
 {
@@ -123,6 +131,7 @@ std::unique_ptr<GLPlatformContext> GLPlatformContext::createContext(GraphicsCont
 
     return nullptr;
 }
+#endif // USE(GRAPHICS_SURFACE)
 
 bool GLPlatformContext::supportsGLExtension(const String& name)
 {
@@ -178,6 +187,8 @@ bool GLPlatformContext::supportsGLXExtension(Display* display, const String& nam
     return false;
 }
 #endif
+
+#if USE(GRAPHICS_SURFACE)
 
 GLPlatformContext::GLPlatformContext()
     : m_contextHandle(0)
@@ -267,6 +278,7 @@ void GLPlatformContext::destroy()
     m_contextHandle = 0;
     m_resetLostContext = false;
 }
+#endif // USE(GRAPHICS_SURFACE)
 
 } // namespace WebCore
 
