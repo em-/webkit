@@ -27,7 +27,9 @@
 #define GLPlatformContext_h
 
 #include "GLDefs.h"
+#if USE(GRAPHICS_SURFACE)
 #include "GLPlatformSurface.h"
+#endif
 #include "GraphicsContext3D.h"
 #include <wtf/Noncopyable.h>
 
@@ -58,6 +60,7 @@ public:
     static bool supportsGLXExtension(Display*, const String&);
 #endif
 
+#if USE(GRAPHICS_SURFACE)
     virtual ~GLPlatformContext();
 
     virtual bool initialize(GLPlatformSurface*, PlatformContext = 0);
@@ -87,6 +90,7 @@ protected:
     PlatformContext m_contextHandle;
     bool m_resetLostContext;
     bool m_contextLost;
+#endif
 };
 
 } // namespace WebCore
