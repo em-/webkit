@@ -30,6 +30,15 @@
 
 #include <opengl/GLDefs.h>
 
+#if PLATFORM(WAYLAND)
+#ifndef EGL_WAYLAND_BUFFER_WL
+#define EGL_WAYLAND_BUFFER_WL 0x31D5
+#endif
+
+struct wl_display;
+struct wl_resource;
+#endif
+
 namespace WebCore {
 
 class EGLHelper {
@@ -40,6 +49,11 @@ public:
     static void createEGLImage(EGLImageKHR*, GLenum, const EGLClientBuffer, const EGLint* = 0);
     static void destroyEGLImage(const EGLImageKHR);
     static void imageTargetTexture2DOES(const EGLImageKHR);
+#if PLATFORM(WAYLAND)
+    static bool bindWaylandDisplay(struct wl_display *wlDisplay);
+    static bool unbindWaylandDisplay(struct wl_display *wlDisplay);
+    static bool queryWaylandBuffer(struct wl_resource *buffer, EGLint attribute, EGLint *value);
+#endif
 };
 
 }
