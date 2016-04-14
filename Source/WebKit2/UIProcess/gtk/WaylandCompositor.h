@@ -59,6 +59,7 @@ public:
     void removeWidget(GtkWidget*);
     int getWidgetId(GtkWidget*);
     cairo_surface_t* cairoSurfaceForWidget(GtkWidget*);
+    EGLImageKHR eglImageForWidget(GtkWidget*);
 
     // Wayland Webkit extension interface
     static void webkitgtkSetSurfaceForWidget(struct wl_client*, struct wl_resource*, struct wl_resource*, uint32_t);

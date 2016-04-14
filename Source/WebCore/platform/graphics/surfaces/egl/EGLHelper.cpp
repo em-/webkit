@@ -40,6 +40,10 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, 
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL) (EGLDisplay dpy, struct wl_resource *buffer, EGLint attribute, EGLint *value);
 #endif
 
+#if PLATFORM(WAYLAND) && !defined(EGL_WL_create_wayland_buffer_from_image)
+typedef struct wl_buffer * (EGLAPIENTRYP PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWL) (EGLDisplay dpy, EGLImageKHR image);
+#endif
+
 static PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR = 0;
 static PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR = 0;
 static PFNGLEGLIMAGETARGETTEXTURE2DOESPROC eglImageTargetTexture2DOES = 0;
@@ -48,6 +52,7 @@ static PFNGLEGLIMAGETARGETTEXTURE2DOESPROC eglImageTargetTexture2DOES = 0;
 static PFNEGLBINDWAYLANDDISPLAYWL eglBindWaylandDisplayWL = 0;
 static PFNEGLUNBINDWAYLANDDISPLAYWL eglUnbindWaylandDisplayWL = 0;
 static PFNEGLQUERYWAYLANDBUFFERWL eglQueryWaylandBufferWL = 0;
+static PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWL eglCreateWaylandBufferFromImageWL = 0;
 #endif
 
 EGLDisplay EGLHelper::eglDisplay()
@@ -96,6 +101,9 @@ void EGLHelper::resolveEGLBindings()
         eglBindWaylandDisplayWL = (PFNEGLBINDWAYLANDDISPLAYWL) eglGetProcAddress("eglBindWaylandDisplayWL");
         eglUnbindWaylandDisplayWL = (PFNEGLUNBINDWAYLANDDISPLAYWL) eglGetProcAddress("eglUnbindWaylandDisplayWL");
         eglQueryWaylandBufferWL = (PFNEGLQUERYWAYLANDBUFFERWL) eglGetProcAddress("eglQueryWaylandBufferWL");
+
+        if (GLPlatformContext::supportsEGLExtension(display, "EGL_WL_create_wayland_buffer_from_image"))
+            eglCreateWaylandBufferFromImageWL = (PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWL) eglGetProcAddress("eglCreateWaylandBufferFromImageWL");
     }
 #endif
 
@@ -158,6 +166,13 @@ bool EGLHelper::queryWaylandBuffer(struct wl_resource *buffer, EGLint attribute,
     if (display == EGL_NO_DISPLAY || !eglQueryWaylandBufferWL)
         return false;
     return eglQueryWaylandBufferWL(display, buffer, attribute, value);
+}
+struct wl_buffer* createWaylandBufferFromImage(EGLImageKHR image)
+{
+    EGLDisplay display = currentDisplay();
+    if (display == EGL_NO_DISPLAY || image == EGL_NO_IMAGE_KHR || !eglCreateWaylandBufferFromImageWL)
+        return nullptr;
+    return eglCreateWaylandBufferFromImageWL(display, image);
 }
 #endif // PLATFORM(WAYLAND)
 

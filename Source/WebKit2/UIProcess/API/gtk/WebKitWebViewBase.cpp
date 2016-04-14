@@ -54,6 +54,7 @@
 #include "WebProcessPool.h"
 #include "WebUserContentControllerProxy.h"
 #include <WebCore/CairoUtilities.h>
+#include <WebCore/EGLHelper.h>
 #include <WebCore/GUniquePtrGtk.h>
 #include <WebCore/GtkUtilities.h>
 #include <WebCore/GtkVersioning.h>
@@ -581,6 +582,24 @@ static void webkitWebViewBaseConstructed(GObject* object)
     priv->authenticationDialog = 0;
 }
 
+static bool webkitWebViewPaintSubsurface(WebKitWebViewBase* webViewBase, GdkRectangle* clipRect)
+{
+    WebKitWebViewBasePrivate* priv = webViewBase->priv;
+    if (!priv->subsurface)
+        return false;
+    EGLImageKHR eglimage = priv->waylandCompositor->eglImageForWidget(GTK_WIDGET(webViewBase));
+    if (eglimage == EGL_NO_IMAGE_KHR)
+        return false;
+    struct wl_buffer *buffer = EGLHelper::createWaylandBufferFromImage(eglimage);
+    if (!buffer)
+        return false;
+    // FIXME: should we add a listener to free the buffer?
+    wl_surface_attach(priv->subsurface, buffer, 0, 0);
+    wl_surface_damage(priv->subsurface, clipRect->x, clipRect->y, clipRect->width, clipRect->height);
+    wl_surface_commit(priv->subsurface);
+    return true;
+}
+
 static bool webkitWebViewRenderAcceleratedCompositingResults(WebKitWebViewBase* webViewBase, DrawingAreaProxyImpl* drawingArea, cairo_t* cr, GdkRectangle* clipRect)
 {
 #if USE(TEXTURE_MAPPER) && (USE(REDIRECTED_XCOMPOSITE_WINDOW) || USE(NESTED_COMPOSITOR))
@@ -598,6 +617,8 @@ static bool webkitWebViewRenderAcceleratedCompositingResults(WebKitWebViewBase* 
     if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
         if (!priv->waylandCompositor)
             return false;
+        if (webkitWebViewPaintSubsurface(webViewBase, clipRect))
+            return true;
         surface = priv->waylandCompositor->cairoSurfaceForWidget(GTK_WIDGET(webViewBase));
     }
 #endif

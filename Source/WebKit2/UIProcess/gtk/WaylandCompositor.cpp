@@ -571,6 +571,12 @@ cairo_surface_t* WaylandCompositor::cairoSurfaceForWidget(GtkWidget* widget)
     return surface ? surface->cairoSurface.get() : 0;
 }
 
+EGLImageKHR WaylandCompositor::eglImageForWidget(GtkWidget* widget)
+{
+    struct NestedSurface* surface = getSurfaceForWidget(this, widget);
+    return surface ? surface->image : EGL_NO_IMAGE_KHR;
+}
+
 } // namespace WebCore
 
 #endif // USE(NESTED_COMPOSITOR)

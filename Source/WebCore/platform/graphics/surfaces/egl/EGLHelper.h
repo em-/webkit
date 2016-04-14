@@ -53,6 +53,7 @@ public:
     static bool bindWaylandDisplay(struct wl_display *wlDisplay);
     static bool unbindWaylandDisplay(struct wl_display *wlDisplay);
     static bool queryWaylandBuffer(struct wl_resource *buffer, EGLint attribute, EGLint *value);
+    static struct wl_buffer* createWaylandBufferFromImage(EGLImageKHR);
 #endif
 };
 
