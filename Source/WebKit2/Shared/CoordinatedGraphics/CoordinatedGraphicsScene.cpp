@@ -730,7 +730,7 @@ void CoordinatedGraphicsScene::appendUpdate(std::function<void()> function)
     if (!m_isActive)
         return;
 
-    ASSERT(isMainThread());
+    //ASSERT(isMainThread());
     LockHolder locker(m_renderQueueMutex);
     m_renderQueue.append(WTFMove(function));
 }
