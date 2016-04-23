@@ -54,10 +54,12 @@
 #include "WebProcessPool.h"
 #include "WebUserContentControllerProxy.h"
 #include <WebCore/CairoUtilities.h>
-#include <WebCore/GLContextEGL.h>
+#include <WebCore/EGLHelper.h>
+#include <WebCore/GraphicsContext3D.h>
 #include <WebCore/GUniquePtrGtk.h>
 #include <WebCore/GtkUtilities.h>
 #include <WebCore/GtkVersioning.h>
+#include <WebCore/Logging.h>
 #include <WebCore/NotImplemented.h>
 #include <WebCore/PasteboardHelper.h>
 #include <WebCore/PlatformDisplay.h>
@@ -88,8 +90,19 @@
 // to make sure we have cairo new enough to support cairo_surface_set_device_scale
 #define HAVE_GTK_SCALE_FACTOR HAVE_CAIRO_SURFACE_SET_DEVICE_SCALE && GTK_CHECK_VERSION(3, 10, 0)
 
+#define STRINGIFY(...) #__VA_ARGS__
+
 using namespace WebKit;
 using namespace WebCore;
+
+static const GC3Dfloat s_glAreaVertex[] = {
+    -1, -1,
+    -1,  1,
+     1, -1,
+     1,  1,
+};
+static const GC3Dint s_glAreaVertexComponents = 2;
+static const GC3Dint s_glAreaVertexCount = sizeof(s_glAreaVertex) / sizeof(GC3Dfloat) / s_glAreaVertexComponents;
 
 struct ClickCounter {
 public:
@@ -219,7 +232,10 @@ struct _WebKitWebViewBasePrivate {
 
 #if USE(NESTED_COMPOSITOR)
     WaylandCompositor* waylandCompositor;
-    std::unique_ptr<GLContextEGL> glCtx;
+    GtkWidget* glArea;
+    Platform3DObject glAreaTexture;
+    Platform3DObject glAreaShaderProgram;
+    Platform3DObject glAreaVbo;
 #endif
 
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
@@ -362,6 +378,124 @@ static void webkitWebViewBaseSetToplevelOnScreenWindow(WebKitWebViewBase* webVie
         priv->toplevelWindowRealizedID = g_signal_connect_swapped(window, "realize", G_CALLBACK(toplevelWindowRealized), webViewBase);
 }
 
+#if USE(NESTED_COMPOSITOR)
+static void glAreaRealize(GtkGLArea *glArea, gpointer user_data)
+{
+    WebKitWebViewBase* webView = WEBKIT_WEB_VIEW_BASE(user_data);
+    WebKitWebViewBasePrivate* priv = webView->priv;
+
+    gtk_gl_area_make_current(glArea);
+
+    RefPtr<GraphicsContext3D> gl = GraphicsContext3D::createForCurrentGLContext();
+
+    EGLHelper::resolveEGLBindings(); // make sure glEGLImageTargetTexture2DOES() gets bound
+
+    priv->glAreaTexture = gl->createTexture();
+    gl->bindTexture(GraphicsContext3D::TEXTURE_2D, priv->glAreaTexture);
+    gl->texParameteri(GraphicsContext3D::TEXTURE_2D, GraphicsContext3D::TEXTURE_WRAP_S, GraphicsContext3D::CLAMP_TO_EDGE);
+    gl->texParameteri(GraphicsContext3D::TEXTURE_2D, GraphicsContext3D::TEXTURE_WRAP_T, GraphicsContext3D::CLAMP_TO_EDGE);
+    gl->texParameteri(GraphicsContext3D::TEXTURE_2D, GraphicsContext3D::TEXTURE_MIN_FILTER, GraphicsContext3D::NEAREST);
+    gl->texParameteri(GraphicsContext3D::TEXTURE_2D, GraphicsContext3D::TEXTURE_MAG_FILTER, GraphicsContext3D::NEAREST);
+
+    String vertexShaderSource(STRINGIFY(
+        attribute vec2 a_vertex;
+        varying vec2 v_texCoord;
+
+        void main()
+        {
+            gl_Position = vec4(a_vertex, 0, 1);
+            // map the [-1,1] space to [0,1] and flip the vertical axis
+            v_texCoord = vec2((gl_Position.x+1.0)/2.0, (-gl_Position.y+1.0)/2.0);
+        }
+    ));
+
+    String fragmentShaderSource(STRINGIFY(
+        precision mediump float;
+        uniform sampler2D s_contentTexture;
+        varying vec2 v_texCoord;
+
+        void main()
+        {
+            gl_FragColor = texture2D(s_contentTexture, v_texCoord);
+        }
+    ));
+
+    priv->glAreaShaderProgram = gl->createProgram();
+
+    Platform3DObject vertexShader = gl->createShader(GraphicsContext3D::VERTEX_SHADER);
+    gl->shaderSource(vertexShader, vertexShaderSource);
+    gl->compileShader(vertexShader);
+    gl->attachShader(priv->glAreaShaderProgram, vertexShader);
+
+    Platform3DObject fragmentShader = gl->createShader(GraphicsContext3D::FRAGMENT_SHADER);
+    gl->shaderSource(fragmentShader, fragmentShaderSource);
+    gl->compileShader(fragmentShader);
+    gl->attachShader(priv->glAreaShaderProgram, fragmentShader);
+
+    gl->linkProgram(priv->glAreaShaderProgram);
+
+    if (gl->getError() != GraphicsContext3D::NO_ERROR) {
+        String log = gl->getShaderInfoLog(vertexShader).utf8().data();
+        LOG(Compositing, "Vertex shader log: %s\n", log.utf8().data());
+        log = gl->getShaderInfoLog(fragmentShader).utf8().data();
+        LOG(Compositing, "Fragment shader log: %s\n", log.utf8().data());
+        log = gl->getProgramInfoLog(priv->glAreaShaderProgram).utf8().data();
+        LOG(Compositing, "Program log: %s\n", log.utf8().data());
+    }
+
+    gl->useProgram(priv->glAreaShaderProgram);
+
+    priv->glAreaVbo = gl->createBuffer();
+    gl->bindBuffer(GraphicsContext3D::ARRAY_BUFFER, priv->glAreaVbo);
+    gl->bufferData(GraphicsContext3D::ARRAY_BUFFER, sizeof(s_glAreaVertex), s_glAreaVertex, GraphicsContext3D::STATIC_DRAW);
+
+    Platform3DObject vertexLocation = gl->getAttribLocation(priv->glAreaShaderProgram, "a_vertex");
+    gl->enableVertexAttribArray(vertexLocation);
+    gl->vertexAttribPointer(vertexLocation, s_glAreaVertexComponents, GraphicsContext3D::FLOAT, false, 0, 0);
+
+    Platform3DObject contentTextureLocation = gl->getUniformLocation(priv->glAreaShaderProgram, "s_contentTexture");
+    gl->uniform1i(contentTextureLocation, 0); // TEXTURE0
+}
+
+static void glAreaUnrealize(GtkGLArea *glArea, gpointer user_data)
+{
+    WebKitWebViewBase* webView = WEBKIT_WEB_VIEW_BASE(user_data);
+    WebKitWebViewBasePrivate* priv = webView->priv;
+
+    gtk_gl_area_make_current(glArea);
+    RefPtr<GraphicsContext3D> gl = GraphicsContext3D::createForCurrentGLContext();
+    gl->deleteProgram(priv->glAreaShaderProgram);
+    gl->deleteTexture(priv->glAreaTexture);
+    gl->deleteBuffer(priv->glAreaVbo);
+}
+
+static gboolean glAreaRender(GtkGLArea *glArea, GdkGLContext *context, gpointer user_data)
+{
+    WebKitWebViewBase* webView = WEBKIT_WEB_VIEW_BASE(user_data);
+    WebKitWebViewBasePrivate* priv = webView->priv;
+
+    gtk_gl_area_make_current(glArea);
+    RefPtr<GraphicsContext3D> gl = GraphicsContext3D::createForCurrentGLContext();
+
+    EGLImageKHR eglImage = priv->waylandCompositor->createEGLImageForWidget(GTK_WIDGET(webView), nullptr, nullptr);
+    if (!eglImage) {
+        gl->clearColor(1, 1, 1, 1);
+        gl->clear(GraphicsContext3D::COLOR_BUFFER_BIT);
+        return FALSE;
+    }
+
+    gl->bindTexture(GraphicsContext3D::TEXTURE_2D, priv->glAreaTexture);
+    EGLHelper::imageTargetTexture2DOES(eglImage);
+    gl->useProgram(priv->glAreaShaderProgram);
+    gl->activeTexture(GraphicsContext3D::TEXTURE0);
+    gl->drawArrays(GraphicsContext3D::TRIANGLE_STRIP, 0, s_glAreaVertexCount);
+
+    EGLHelper::destroyEGLImage(eglImage);
+
+    return TRUE;
+}
+#endif // USE(NESTED_COMPOSITOR)
+
 static void webkitWebViewBaseRealize(GtkWidget* widget)
 {
     WebKitWebViewBase* webView = WEBKIT_WEB_VIEW_BASE(widget);
@@ -369,9 +503,6 @@ static void webkitWebViewBaseRealize(GtkWidget* widget)
 
 #if USE(NESTED_COMPOSITOR)
     if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
-        auto& upstreamDisplay = PlatformDisplay::sharedDisplay();
-        priv->glCtx = downcast<PlatformDisplayWayland>(upstreamDisplay).createSharingGLContext();
-        priv->glCtx->makeContextCurrent();
         priv->waylandCompositor = WaylandCompositor::instance();
         priv->waylandCompositor->addWidget(widget);
         DrawingAreaProxyImpl* drawingArea = static_cast<DrawingAreaProxyImpl*>(priv->pageProxy->drawingArea());
@@ -464,7 +595,7 @@ static void webkitWebViewBaseUnrealize(GtkWidget* widget)
 static bool webkitWebViewChildIsInternalWidget(WebKitWebViewBase* webViewBase, GtkWidget* widget)
 {
     WebKitWebViewBasePrivate* priv = webViewBase->priv;
-    return widget == priv->inspectorView || widget == priv->authenticationDialog;
+    return widget == priv->inspectorView || widget == priv->authenticationDialog || widget == priv->glArea;
 }
 
 static void webkitWebViewBaseContainerAdd(GtkContainer* container, GtkWidget* widget)
@@ -524,6 +655,8 @@ static void webkitWebViewBaseContainerRemove(GtkContainer* container, GtkWidget*
         priv->inspectorViewSize = 0;
     } else if (priv->authenticationDialog == widget) {
         priv->authenticationDialog = 0;
+    } else if (priv->glArea == widget) {
+        priv->glArea = 0;
     } else {
         ASSERT(priv->children.contains(widget));
         priv->children.remove(widget);
@@ -549,6 +682,9 @@ static void webkitWebViewBaseContainerForall(GtkContainer* container, gboolean i
 
     if (includeInternals && priv->authenticationDialog)
         (*callback)(priv->authenticationDialog, callbackData);
+
+    if (includeInternals && priv->glArea)
+        (*callback)(priv->glArea, callbackData);
 }
 
 void webkitWebViewBaseChildMoveResize(WebKitWebViewBase* webView, GtkWidget* child, const IntRect& childRect)
@@ -583,6 +719,16 @@ static void webkitWebViewBaseConstructed(GObject* object)
     WebKitWebViewBasePrivate* priv = WEBKIT_WEB_VIEW_BASE(object)->priv;
     priv->pageClient = std::make_unique<PageClientImpl>(viewWidget);
     priv->authenticationDialog = 0;
+
+#if USE(NESTED_COMPOSITOR)
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
+        priv->glArea = gtk_gl_area_new();
+        g_signal_connect(priv->glArea, "realize", G_CALLBACK(glAreaRealize), object);
+        g_signal_connect(priv->glArea, "unrealize", G_CALLBACK(glAreaUnrealize), object);
+        g_signal_connect(priv->glArea, "render", G_CALLBACK(glAreaRender), object);
+        gtk_container_add(GTK_CONTAINER(object), priv->glArea);
+    }
+#endif
 }
 
 static bool webkitWebViewRenderAcceleratedCompositingResults(WebKitWebViewBase* webViewBase, DrawingAreaProxyImpl* drawingArea, cairo_t* cr, GdkRectangle* clipRect)
@@ -595,17 +741,12 @@ static bool webkitWebViewRenderAcceleratedCompositingResults(WebKitWebViewBase* 
 
     // To avoid flashes when initializing accelerated compositing for the first
     // time, we wait until we know there's a frame ready before rendering.
-    RefPtr<cairo_surface_t> surfaceref;
     cairo_surface_t* surface = nullptr;
     WebKitWebViewBasePrivate* priv = webViewBase->priv;
 
 #if USE(NESTED_COMPOSITOR)
-    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
-        if (!priv->waylandCompositor)
-            return false;
-        surfaceref = priv->waylandCompositor->createCairoSurfaceForWidget(GTK_WIDGET(webViewBase));
-        surface = surfaceref.get();
-    }
+    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland)
+        return priv->waylandCompositor;
 #endif
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
     if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::X11) {
@@ -723,6 +864,13 @@ static void webkitWebViewBaseSizeAllocate(GtkWidget* widget, GtkAllocation* allo
         };
         gtk_widget_size_allocate(priv->authenticationDialog, &childAllocation);
     }
+
+#if USE(NESTED_COMPOSITOR)
+    if (priv->glArea) {
+        GtkAllocation childAllocation = IntRect(0, 0, viewRect.width(), viewRect.height());
+        gtk_widget_size_allocate(priv->glArea, &childAllocation);
+    }
+#endif
 
     DrawingAreaProxyImpl* drawingArea = static_cast<DrawingAreaProxyImpl*>(priv->pageProxy->drawingArea());
     if (!drawingArea)
@@ -1589,6 +1737,10 @@ static void webkitWebViewBaseClearRedirectedWindowSoon(WebKitWebViewBase* webkit
 
 void webkitWebViewBaseWillEnterAcceleratedCompositingMode(WebKitWebViewBase* webkitWebViewBase)
 {
+#if USE(NESTED_COMPOSITOR)
+    if (webkitWebViewBase->priv->glArea)
+        gtk_widget_show(webkitWebViewBase->priv->glArea);
+#endif
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
     WebKitWebViewBasePrivate* priv = webkitWebViewBase->priv;
     if (!priv->redirectedWindow)
@@ -1618,6 +1770,10 @@ void webkitWebViewBaseEnterAcceleratedCompositingMode(WebKitWebViewBase* webkitW
 
 void webkitWebViewBaseExitAcceleratedCompositingMode(WebKitWebViewBase* webkitWebViewBase)
 {
+#if USE(NESTED_COMPOSITOR)
+    if (webkitWebViewBase->priv->glArea)
+        gtk_widget_hide(webkitWebViewBase->priv->glArea);
+#endif
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
     // Resize the window later to ensure we have already rendered the
     // non composited contents and avoid flickering. We can also avoid the
