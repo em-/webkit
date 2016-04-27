@@ -76,7 +76,7 @@ std::unique_ptr<PlatformDisplay> PlatformDisplay::createPlatformDisplay()
 #endif
 #if PLATFORM(WAYLAND)
     if (GDK_IS_WAYLAND_DISPLAY(display))
-        return PlatformDisplayWayland::create();
+        return PlatformDisplayWayland::create(gdk_wayland_display_get_wl_display(display));
 #endif
 #endif
 #elif PLATFORM(EFL) && defined(HAVE_ECORE_X)

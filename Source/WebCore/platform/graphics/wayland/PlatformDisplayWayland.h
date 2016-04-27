@@ -43,7 +43,7 @@ class WaylandSurface;
 
 class PlatformDisplayWayland final: public PlatformDisplay {
 public:
-    static std::unique_ptr<PlatformDisplayWayland> create();
+    static std::unique_ptr<PlatformDisplayWayland> create(struct wl_display*);
     virtual ~PlatformDisplayWayland();
 
     struct wl_display* native() const { return m_display; }

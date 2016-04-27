@@ -56,9 +56,8 @@ void PlatformDisplayWayland::globalRemoveCallback(void*, struct wl_registry*, ui
     // we should probably destroy our cached display instance.
 }
 
-std::unique_ptr<PlatformDisplayWayland> PlatformDisplayWayland::create()
+std::unique_ptr<PlatformDisplayWayland> PlatformDisplayWayland::create(struct wl_display* wlDisplay)
 {
-    struct wl_display* wlDisplay = wl_display_connect(nullptr);
     if (!wlDisplay) {
         WTFLogAlways("PlatformDisplayWayland initialization: failed to connect to the Wayland server socket. Check your WAYLAND_DISPLAY or WAYLAND_SOCKET environment variables.");
         return nullptr;
