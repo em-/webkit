@@ -60,11 +60,21 @@ void EGLHelper::resolveEGLBindings()
     if (display == EGL_NO_DISPLAY)
         return;
 
-    if (GLPlatformContext::supportsEGLExtension(display, "EGL_KHR_image") && GLPlatformContext::supportsEGLExtension(display, "EGL_KHR_image_pixmap") && GLPlatformContext::supportsGLExtension("GL_OES_EGL_image")) {
-        eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglCreateImageKHR");
-        eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR");
+    if (!GLPlatformContext::supportsEGLExtension(display, "EGL_KHR_image_base"))
+        return;
+
+    PlatformDisplay::Type displayType = PlatformDisplay::sharedDisplay().type();
+
+    if (GLPlatformContext::supportsGLExtension("GL_OES_EGL_image"))
         eglImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
-    }
+
+#if PLATFORM(X11)
+    if (displayType == PlatformDisplay::Type::X11 && !GLPlatformContext::supportsEGLExtension(display, "EGL_KHR_image_pixmap"))
+        return;
+#endif
+
+    eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglCreateImageKHR");
+    eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR");
 }
 
 void EGLHelper::createEGLImage(EGLImageKHR* image, GLenum target, const EGLClientBuffer clientBuffer, const EGLint attributes[])
