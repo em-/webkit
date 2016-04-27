@@ -34,9 +34,21 @@
 
 namespace WebCore {
 
+#if PLATFORM(WAYLAND) && !defined(EGL_WL_bind_wayland_display)
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYWAYLANDBUFFERWL) (EGLDisplay dpy, struct wl_resource *buffer, EGLint attribute, EGLint *value);
+#endif
+
 static PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR = 0;
 static PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR = 0;
 static PFNGLEGLIMAGETARGETTEXTURE2DOESPROC eglImageTargetTexture2DOES = 0;
+
+#if PLATFORM(WAYLAND)
+static PFNEGLBINDWAYLANDDISPLAYWL eglBindWaylandDisplayWL = 0;
+static PFNEGLUNBINDWAYLANDDISPLAYWL eglUnbindWaylandDisplayWL = 0;
+static PFNEGLQUERYWAYLANDBUFFERWL eglQueryWaylandBufferWL = 0;
+#endif
 
 EGLDisplay EGLHelper::eglDisplay()
 {
@@ -73,6 +85,17 @@ void EGLHelper::resolveEGLBindings()
         return;
 #endif
 
+#if PLATFORM(WAYLAND)
+    if (displayType == PlatformDisplay::Type::Wayland) {
+        if (!GLPlatformContext::supportsEGLExtension(display, "EGL_WL_bind_wayland_display"))
+            return;
+
+        eglBindWaylandDisplayWL = (PFNEGLBINDWAYLANDDISPLAYWL) eglGetProcAddress("eglBindWaylandDisplayWL");
+        eglUnbindWaylandDisplayWL = (PFNEGLUNBINDWAYLANDDISPLAYWL) eglGetProcAddress("eglUnbindWaylandDisplayWL");
+        eglQueryWaylandBufferWL = (PFNEGLQUERYWAYLANDBUFFERWL) eglGetProcAddress("eglQueryWaylandBufferWL");
+    }
+#endif
+
     eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglCreateImageKHR");
     eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR");
 }
@@ -107,6 +130,32 @@ void EGLHelper::imageTargetTexture2DOES(const EGLImageKHR image)
 {
     eglImageTargetTexture2DOES(GL_TEXTURE_2D, static_cast<GLeglImageOES>(image));
 }
+
+#if PLATFORM(WAYLAND)
+bool EGLHelper::bindWaylandDisplay(struct wl_display *wlDisplay)
+{
+    EGLDisplay eglDisplay = currentDisplay();
+    if (eglDisplay == EGL_NO_DISPLAY || !eglBindWaylandDisplayWL)
+        return false;
+    return eglBindWaylandDisplayWL(eglDisplay, wlDisplay);
+}
+
+bool EGLHelper::unbindWaylandDisplay(struct wl_display *wlDisplay)
+{
+    EGLDisplay eglDisplay = currentDisplay();
+    if (eglDisplay == EGL_NO_DISPLAY || !eglUnbindWaylandDisplayWL)
+        return false;
+    return eglUnbindWaylandDisplayWL(eglDisplay, wlDisplay);
+}
+
+bool EGLHelper::queryWaylandBuffer(struct wl_resource *buffer, EGLint attribute, EGLint *value)
+{
+    EGLDisplay display = currentDisplay();
+    if (display == EGL_NO_DISPLAY || !eglQueryWaylandBufferWL)
+        return false;
+    return eglQueryWaylandBufferWL(display, buffer, attribute, value);
+}
+#endif // PLATFORM(WAYLAND)
 
 }
 #endif
