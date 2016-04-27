@@ -55,13 +55,6 @@ EGLDisplay EGLHelper::currentDisplay()
 
 void EGLHelper::resolveEGLBindings()
 {
-    static bool initialized = false;
-
-    if (initialized)
-        return;
-
-    initialized = true;
-
     EGLDisplay display = currentDisplay();
 
     if (display == EGL_NO_DISPLAY)
