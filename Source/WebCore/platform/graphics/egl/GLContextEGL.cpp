@@ -23,6 +23,7 @@
 
 #include "GraphicsContext3D.h"
 #include "PlatformDisplay.h"
+#include "PlatformDisplayWayland.h"
 
 #if USE(CAIRO)
 #include <cairo.h>
@@ -146,6 +147,39 @@ std::unique_ptr<GLContextEGL> GLContextEGL::createPbufferContext(EGLContext shar
     return std::make_unique<GLContextEGL>(context, surface, PbufferSurface);
 }
 
+#if PLATFORM(WAYLAND)
+std::unique_ptr<GLContextEGL> GLContextEGL::createWaylandOffscreenContext(GLContext* sharingContext)
+{
+    class OffscreenContextData : public GLContext::Data {
+        public:
+            OffscreenContextData(struct wl_surface* s, EGLNativeWindowType w)
+                : surface(s)
+                , nativeWindow(w)
+            { }
+
+            virtual ~OffscreenContextData()
+            {
+                wl_egl_window_destroy(nativeWindow);
+                wl_surface_destroy(surface);
+            }
+
+            struct wl_surface* surface;
+            EGLNativeWindowType nativeWindow;
+    };
+
+    auto& sharedDisplay = PlatformDisplay::sharedDisplay();
+    if (sharedDisplay.type() != PlatformDisplay::Type::Wayland)
+        return nullptr;
+
+    struct wl_compositor* compositor = downcast<PlatformDisplayWayland>(sharedDisplay).nativeCompositor();
+    struct wl_surface* surface = wl_compositor_create_surface(compositor);
+    EGLNativeWindowType nativeWindow = wl_egl_window_create(surface, 1, 1);
+    auto contextData = std::make_unique<OffscreenContextData>(surface, nativeWindow);
+
+    return createWindowContext(nativeWindow, sharingContext, WTFMove(contextData));
+}
+#endif // PLATFORM(X11)
+
 #if PLATFORM(X11)
 std::unique_ptr<GLContextEGL> GLContextEGL::createPixmapContext(EGLContext sharingContext)
 {
@@ -202,6 +236,10 @@ std::unique_ptr<GLContextEGL> GLContextEGL::createContext(EGLNativeWindowType wi
 
     EGLContext eglSharingContext = sharingContext ? static_cast<GLContextEGL*>(sharingContext)->m_context : 0;
     auto context = window ? createWindowContext(window, sharingContext) : nullptr;
+#if PLATFORM(WAYLAND)
+    if (!context)
+        context = createWaylandOffscreenContext(sharingContext);
+#endif
 #if PLATFORM(X11)
     if (!context)
         context = createPixmapContext(eglSharingContext);

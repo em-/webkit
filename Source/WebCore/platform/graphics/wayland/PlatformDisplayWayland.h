@@ -47,6 +47,7 @@ public:
     virtual ~PlatformDisplayWayland();
 
     struct wl_display* native() const { return m_display; }
+    struct wl_compositor* nativeCompositor() const { return m_compositor; }
 
     std::unique_ptr<WaylandSurface> createSurface(const IntSize&, int widgetID);
 

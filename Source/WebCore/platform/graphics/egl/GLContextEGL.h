@@ -62,6 +62,9 @@ private:
 #if PLATFORM(X11)
     static std::unique_ptr<GLContextEGL> createPixmapContext(EGLContext sharingContext);
 #endif
+#if PLATFORM(WAYLAND)
+    static std::unique_ptr<GLContextEGL> createWaylandOffscreenContext(GLContext* sharingContext);
+#endif
 
     static void addActiveContext(GLContextEGL*);
     static void cleanupSharedEGLDisplay(void);
