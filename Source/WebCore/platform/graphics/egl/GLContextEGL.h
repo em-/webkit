@@ -34,7 +34,7 @@ namespace WebCore {
 class GLContextEGL : public GLContext {
     WTF_MAKE_NONCOPYABLE(GLContextEGL);
 public:
-    enum EGLSurfaceType { PbufferSurface, WindowSurface, PixmapSurface };
+    enum EGLSurfaceType { PbufferSurface, WindowSurface, PixmapSurface, Surfaceless };
     static std::unique_ptr<GLContextEGL> createContext(EGLNativeWindowType, GLContext* sharingContext = 0);
     static std::unique_ptr<GLContextEGL> createWindowContext(EGLNativeWindowType, GLContext* sharingContext, std::unique_ptr<GLContext::Data>&& = nullptr);
 

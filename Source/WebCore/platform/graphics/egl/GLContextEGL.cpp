@@ -21,6 +21,7 @@
 
 #if USE(EGL)
 
+#include "GLPlatformContext.h"
 #include "GraphicsContext3D.h"
 #include "PlatformDisplay.h"
 #include "PlatformDisplayWayland.h"
@@ -88,6 +89,7 @@ static bool getEGLConfig(EGLConfig* config, GLContextEGL::EGLSurfaceType surface
         attributeList[13] = EGL_PIXMAP_BIT;
         break;
     case GLContextEGL::WindowSurface:
+    case GLContextEGL::Surfaceless:
         attributeList[13] = EGL_WINDOW_BIT;
         break;
     }
@@ -104,21 +106,29 @@ std::unique_ptr<GLContextEGL> GLContextEGL::createWindowContext(EGLNativeWindowT
     if (display == EGL_NO_DISPLAY)
         return nullptr;
 
+    EGLSurfaceType type = window ? WindowSurface : Surfaceless;
+
     EGLConfig config;
-    if (!getEGLConfig(&config, WindowSurface))
+    if (!getEGLConfig(&config, type))
+        return nullptr;
+
+    if (!window && !GLPlatformContext::supportsEGLExtension(display, "EGL_KHR_surfaceless_context"))
         return nullptr;
 
     EGLContext context = eglCreateContext(display, config, eglSharingContext, gContextAttributes);
     if (context == EGL_NO_CONTEXT)
         return nullptr;
 
-    EGLSurface surface = eglCreateWindowSurface(display, config, window, 0);
-    if (surface == EGL_NO_SURFACE) {
-        eglDestroyContext(display, context);
-        return nullptr;
+    EGLSurface surface = EGL_NO_CONTEXT;
+    if (window) {
+        surface = eglCreateWindowSurface(display, config, window, 0);
+        if (surface == EGL_NO_SURFACE) {
+            eglDestroyContext(display, context);
+            return nullptr;
+        }
     }
 
-    auto glContext = std::make_unique<GLContextEGL>(context, surface, WindowSurface);
+    auto glContext = std::make_unique<GLContextEGL>(context, surface, type);
     glContext->m_contextData = WTFMove(contextData);
     return glContext;
 }
@@ -235,7 +245,7 @@ std::unique_ptr<GLContextEGL> GLContextEGL::createContext(EGLNativeWindowType wi
         return nullptr;
 
     EGLContext eglSharingContext = sharingContext ? static_cast<GLContextEGL*>(sharingContext)->m_context : 0;
-    auto context = window ? createWindowContext(window, sharingContext) : nullptr;
+    auto context = createWindowContext(window, sharingContext);
 #if PLATFORM(WAYLAND)
     if (!context)
         context = createWaylandOffscreenContext(sharingContext);
@@ -256,6 +266,7 @@ GLContextEGL::GLContextEGL(EGLContext context, EGLSurface surface, EGLSurfaceTyp
     , m_type(type)
 {
     ASSERT(type != PixmapSurface);
+    ASSERT(type == Surfaceless || surface != EGL_NO_SURFACE);
 }
 
 #if PLATFORM(X11)
@@ -306,7 +317,7 @@ IntSize GLContextEGL::defaultFrameBufferSize()
 
 bool GLContextEGL::makeContextCurrent()
 {
-    ASSERT(m_context && m_surface);
+    ASSERT(m_context);
 
     GLContext::makeContextCurrent();
     if (eglGetCurrentContext() == m_context)
