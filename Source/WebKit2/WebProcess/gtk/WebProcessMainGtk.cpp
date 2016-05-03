@@ -55,7 +55,11 @@ public:
 #if (USE(COORDINATED_GRAPHICS_THREADED) || USE(GSTREAMER_GL)) && PLATFORM(X11)
         XInitThreads();
 #endif
-        gtk_init(nullptr, nullptr);
+        if (!gtk_init_check(nullptr, nullptr)) {
+            // Wait until the nested compositor is available
+            ::sleep(3u);
+            gtk_init(nullptr, nullptr);
+        }
 
         bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
         bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
