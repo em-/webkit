@@ -81,6 +81,7 @@
 #endif
 
 #if PLATFORM(WAYLAND)
+#include <gdk/gdk.h>
 #include <gdk/gdkwayland.h>
 #endif
 
@@ -603,8 +604,15 @@ static bool webkitWebViewRenderAcceleratedCompositingResults(WebKitWebViewBase* 
     if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Wayland) {
         if (!priv->waylandCompositor)
             return false;
-        surfaceref = priv->waylandCompositor->createCairoSurfaceForWidget(GTK_WIDGET(webViewBase));
-        surface = surfaceref.get();
+
+        GdkWindow* gdkWindow = gtk_widget_get_window(GTK_WIDGET(webViewBase));
+        EGLImageKHR eglImage = priv->waylandCompositor->createEGLImageForWidget(GTK_WIDGET(webViewBase), nullptr, nullptr);
+        if (!eglImage)
+            return false;
+        gdk_cairo_draw_from_egl_image(cr, gdkWindow, eglImage,
+                                gtk_widget_get_scale_factor(GTK_WIDGET(webViewBase)),
+                                clipRect->x, clipRect->y, clipRect->width, clipRect->height);
+        return true;
     }
 #endif
 #if USE(REDIRECTED_XCOMPOSITE_WINDOW)
